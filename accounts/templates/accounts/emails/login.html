@@ -1,0 +1,27 @@
+{% load email %}
+
+{% subject %}Access your Organize.org Account{% endsubject %}
+
+{% body %}
+{{ first_name }}.
+
+Use the following url to access your Organize.org account:
+
+{{ login_url }}
+
+Sincerely,
+
+Organize.org
+{% endbody %}
+
+{% bodyhtml %}
+<p>{{ first_name }}.</p>
+
+<p>Use the following url to access your Organize.org account:</p>
+
+<p><a href="{{ login_url }}">Login to Organize.org</a></p>
+
+<p>Sincerely,</p>
+
+<p>Organize.org</p>
+{% endbodyhtml %}

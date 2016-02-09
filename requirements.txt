@@ -1,0 +1,8 @@
+setuptools
+Django
+flake8
+pep8
+pyflakes
+django-timezone-field
+django-localflavor
+dj-database-url
