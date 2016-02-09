@@ -4,11 +4,11 @@ from __future__ import unicode_literals
 from django.db import models, migrations
 
 
-def add_company_organize(apps, schema_editor):
+def add_company_example(apps, schema_editor):
     # We can't import the Person model directly as it may be a newer
     # version than this migration expects. We use the historical version.
     Company = apps.get_model("accounts", "Company")
-    company = Company(name='ORGANIZE')
+    company = Company(name='Example')
     company.save()
 
 
@@ -41,7 +41,7 @@ class Migration(migrations.Migration):
             },
             bases=(models.Model,),
         ),
-        migrations.RunPython(add_company_organize, remove_companies),
+        migrations.RunPython(add_company_example, remove_companies),
         migrations.AddField(
             model_name='user',
             name='company',

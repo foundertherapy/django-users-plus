@@ -1,27 +1,27 @@
 {% load email %}
 
-{% subject %}Access your Organize.org Account{% endsubject %}
+{% subject %}Access your Example.com Account{% endsubject %}
 
 {% body %}
 {{ first_name }}.
 
-Use the following url to access your Organize.org account:
+Use the following url to access your Example.com account:
 
 {{ login_url }}
 
 Sincerely,
 
-Organize.org
+Example.com
 {% endbody %}
 
 {% bodyhtml %}
 <p>{{ first_name }}.</p>
 
-<p>Use the following url to access your Organize.org account:</p>
+<p>Use the following url to access your Example.com account:</p>
 
-<p><a href="{{ login_url }}">Login to Organize.org</a></p>
+<p><a href="{{ login_url }}">Login to Example.com</a></p>
 
 <p>Sincerely,</p>
 
-<p>Organize.org</p>
+<p>Example.com</p>
 {% endbodyhtml %}
