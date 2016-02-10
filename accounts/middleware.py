@@ -8,14 +8,3 @@ class TimezoneMiddleware(object):
             django.utils.timezone.activate(request.user.timezone)
         else:
             django.utils.timezone.deactivate()
-
-
-def show_toolbar(request):
-    if request.is_ajax():
-        return False
-
-    if request.user.is_superuser:
-        return True
-    else:
-        return False
-
