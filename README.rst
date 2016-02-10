@@ -23,8 +23,7 @@ Quick start
 
 3. Run `python manage.py migrate` to create the accounts models.
 
-4. Start the development server admin/ to create users and companies. From Users list view,
-you can take advantage of the masquerading feature.
+4. Start the development server admin/ to create users and companies. From Users list view, you can take advantage of the masquerading feature.
 
 5. For timezone enablement, add "" to MIDDLEWARE_CLASSES like this::
 
@@ -33,7 +32,7 @@ you can take advantage of the masquerading feature.
         'accounts.middleware.TimezoneMiddleware',
     )
 
-6. A new Audit Log model added to capture the following events:
+6. A new Audit Log model added to capture the following events::
     - User creation
     - User login
     - User logout
