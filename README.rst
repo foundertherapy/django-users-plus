@@ -4,9 +4,10 @@ Accounts
 
 Account is an app that shall add the following features to your Django project:
 1. An inherited User model with extra fields like Company, First Name, Last Name, etc...
-2. Masquerading feature.
-3. Enabling Timezone to set to the user's local timezone.
-4. Audit log model to track extra user specific actions.
+2. Create users and login using email address instead of username.
+3. Masquerading feature.
+4. Enabling Timezone to set to the user's local timezone.
+5. Audit log model to track extra user specific actions.
 
 Quick start
 -----------
