@@ -33,6 +33,7 @@ Quick start
     )
 
 6. A new Audit Log model added to capture the following events::
+
     - User creation
     - User login
     - User logout
