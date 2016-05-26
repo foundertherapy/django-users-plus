@@ -97,7 +97,7 @@ class User(django.contrib.auth.models.AbstractBaseUser,
     email = django.db.models.EmailField(_('Email'), unique=True)
     timezone = timezone_field.TimeZoneField(default='America/New_York')
 
-    company = django.db.models.ForeignKey(Company, null=True, blank=True, related_name='users')
+    company = django.db.models.ForeignKey(Company, null=True, related_name='users')
 
     objects = UserManager()
 
