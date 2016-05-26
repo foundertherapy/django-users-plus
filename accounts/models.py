@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 import logging
+import datetime
 
 from django.utils.translation import ugettext_lazy as _
 import django.core.mail
@@ -63,6 +64,7 @@ class UserManager(django.contrib.auth.models.BaseUserManager):
             email=email, first_name=first_name, last_name=last_name,
             is_staff=False, is_active=True, is_superuser=False, **extra_fields)
         user.set_password(password)
+        user.last_login = datetime.now()
         user.save(using=self._db)
         return user
 
