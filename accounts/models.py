@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 import logging
-import datetime
+from django.utils import timezone
 
 from django.utils.translation import ugettext_lazy as _
 import django.core.mail
@@ -64,7 +64,7 @@ class UserManager(django.contrib.auth.models.BaseUserManager):
             email=email, first_name=first_name, last_name=last_name,
             is_staff=False, is_active=True, is_superuser=False, **extra_fields)
         user.set_password(password)
-        user.last_login = datetime.datetime.now()
+        user.last_login = timezone.now()
         user.save(using=self._db)
         return user
 
@@ -111,7 +111,7 @@ class User(django.contrib.auth.models.AbstractBaseUser,
     def __init__(self, *args, **kwargs):
         super(User, self).__init__(*args, **kwargs)
         # hack the admin to change the superuser field verbose name
-        superuser_field = self._meta.get_field_by_name('is_superuser')[0]
+        superuser_field = self._meta.get_field('is_superuser')[0]
         superuser_field.verbose_name = _('Superuser')
 
     def __unicode__(self):
