@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 import logging
-
 from django.utils.translation import ugettext as _
 import django.views.decorators.cache
 import django.views.decorators.csrf
@@ -13,7 +12,8 @@ import django.contrib.messages
 import django.shortcuts
 import django.http
 import django.template.response
-import django.utils.importlib
+import django.utils.module_loading
+
 import django.core.urlresolvers
 
 import models

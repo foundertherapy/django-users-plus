@@ -1,5 +1,4 @@
 from __future__ import unicode_literals
-
 import django.core.exceptions
 import django.shortcuts
 import django.http
@@ -17,10 +16,8 @@ import django.utils.decorators
 import django.core.urlresolvers
 import django.views.decorators.debug
 from django.utils.translation import ugettext_lazy as _
-
 import signals
 import models
-
 
 sensitive_post_parameters_m = django.utils.decorators.method_decorator(
     django.views.decorators.debug.sensitive_post_parameters())
@@ -45,6 +42,7 @@ class UserCreationForm(django.forms.ModelForm):
 
     class Meta:
         model = models.User
+        fields = '__all__'
 
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1")
@@ -77,6 +75,7 @@ class UserChangeForm(django.forms.ModelForm):
 
     class Meta:
         model = models.User
+        fields = '__all__'
 
     def clean_password(self):
         return self.initial.get(
@@ -91,48 +90,48 @@ class UserAdmin(django.contrib.auth.admin.UserAdmin):
     change_user_password_template = None
     list_display = ('email', 'masquerade', 'first_name', 'last_name',
                     'company', 'is_active', 'is_superuser', 'is_staff',
-                    'get_timezone', 'last_login', )
+                    'get_timezone', 'last_login',)
     fieldsets = (
         (None, {
             'fields': ('email', 'password', 'first_name', 'last_name',
                        ),
         }),
         ('Company', {
-            'fields': ('company', ),
+            'fields': ('company',),
         }),
         ('Preferences', {
-            'fields': ('timezone', ),
+            'fields': ('timezone',),
         }),
         ('Security', {
             'fields': ('is_active', 'is_superuser', 'is_staff', 'groups',
-                       'user_permissions', ),
+                       'user_permissions',),
         }),
         ('Important dates', {
-            'fields': ('last_login', 'created_on', 'updated_on', ),
+            'fields': ('last_login', 'created_on', 'updated_on',),
         }),
     )
     add_fieldsets = (
         (None, {
             'fields': ('email', 'password1', 'password2', 'first_name',
-                       'last_name', ),
+                       'last_name',),
         }),
         ('Company', {
-            'fields': ('company', ),
+            'fields': ('company',),
         }),
         ('Preferences', {
-            'fields': ('timezone', ),
+            'fields': ('timezone',),
         }),
         ('Security', {
             'fields': ('is_active', 'is_superuser', 'is_staff', 'groups',
-                       'user_permissions', ),
+                       'user_permissions',),
         }),
     )
-    search_fields = ('email', 'first_name', 'last_name', )
-    ordering = ('email', )
-    readonly_fields = ('last_login', 'created_on', 'updated_on', )
-    actions = ('reset_passwords', )
-    filter_horizontal = ('groups', 'user_permissions', )
-    list_filter = ('is_active', )
+    search_fields = ('email', 'first_name', 'last_name',)
+    ordering = ('email',)
+    readonly_fields = ('last_login', 'created_on', 'updated_on',)
+    actions = ('reset_passwords',)
+    filter_horizontal = ('groups', 'user_permissions',)
+    list_filter = ('is_active',)
 
     def queryset(self, request):
         queryset = super(UserAdmin, self).queryset(request)
@@ -141,12 +140,11 @@ class UserAdmin(django.contrib.auth.admin.UserAdmin):
         return queryset
 
     def get_urls(self):
-        from django.conf.urls import patterns
-        return patterns(
-            '',
-            (r'^(\d+)/password/$',
+        from django.conf.urls import url
+        return [
+            url(r'^(\d+)/password/$',
              self.admin_site.admin_view(self.user_change_password))
-        ) + super(UserAdmin, self).get_urls()
+        ] + super(UserAdmin, self).get_urls()
 
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = super(UserAdmin, self).get_readonly_fields(
@@ -208,6 +206,7 @@ class UserAdmin(django.contrib.auth.admin.UserAdmin):
     def reset_passwords(self, request, queryset):
         for user in queryset.all():
             self.reset_user_password(request, user.id)
+
     reset_passwords.short_description = 'Send password reset emails to ' \
                                         'selected Users'
 
@@ -218,6 +217,7 @@ class UserAdmin(django.contrib.auth.admin.UserAdmin):
         return '<a href="{}">sign in</a>'.format(
             django.core.urlresolvers.reverse(
                 'masquerade', kwargs={'user_id': obj.id}))
+
     masquerade.short_description = 'Sign in'
     masquerade.allow_tags = True
 
@@ -250,7 +250,7 @@ class UserAdmin(django.contrib.auth.admin.UserAdmin):
             'form_url': form_url,
             'form': form,
             'is_popup':
-            django.contrib.admin.options.IS_POPUP_VAR in request.REQUEST,
+                django.contrib.admin.options.IS_POPUP_VAR in request.REQUEST,
             'add': True,
             'change': False,
             'has_delete_permission': False,
@@ -263,7 +263,7 @@ class UserAdmin(django.contrib.auth.admin.UserAdmin):
         }
         return django.template.response.TemplateResponse(
             request, self.change_user_password_template or
-            'admin/auth/user/change_password.html',
+                     'admin/auth/user/change_password.html',
             context, current_app=self.admin_site.name)
 
 
@@ -290,10 +290,10 @@ class LogEntryAdmin(django.contrib.admin.ModelAdmin):
     }
 
     date_hierarchy = 'action_time'
-    list_filter = (ActionFilter, 'content_type', 'user', )
-    search_fields = ('object_repr', 'change_message', )
+    list_filter = (ActionFilter, 'content_type', 'user',)
+    search_fields = ('object_repr', 'change_message',)
     list_display = ('action_time', 'user', 'content_type', 'object_link',
-                    'action', 'change_message', )
+                    'action', 'change_message',)
 
     def get_readonly_fields(self, request, obj=None):
         return django.contrib.admin.models.LogEntry._meta.get_all_field_names()
@@ -319,24 +319,26 @@ class LogEntryAdmin(django.contrib.admin.ModelAdmin):
             link = repr_
         return link if obj.action_flag != django.contrib.admin.models.DELETION \
             else repr_
+
     object_link.allow_tags = True
     object_link.admin_order_field = 'object_repr'
     object_link.short_description = 'object'
 
     def queryset(self, request):
-        return super(LogEntryAdmin, self).queryset(request).\
+        return super(LogEntryAdmin, self).queryset(request). \
             prefetch_related('content_type')
 
     def action(self, obj):
         return self.ACTION_NAMES[obj.action_flag]
+
     action.short_description = 'Action'
 
 
 @django.contrib.admin.register(models.Company)
 class CompanyAdmin(django.contrib.admin.ModelAdmin):
-    search_fields = ('name', )
-    list_display = ('name', 'created_on', )
-    readonly_fields = ('created_on', 'updated_on', )
+    search_fields = ('name',)
+    list_display = ('name', 'created_on',)
+    readonly_fields = ('created_on', 'updated_on',)
     fields = ('created_on', 'updated_on', 'name',
               'street_address', 'street_address_2', 'city', 'state',
               'postal_code',)
@@ -354,27 +356,27 @@ class CompanyAdmin(django.contrib.admin.ModelAdmin):
 
 @django.contrib.admin.register(models.AuditLogEvent)
 class AuditLogEventAdmin(django.contrib.admin.ModelAdmin):
-    list_filter = ('company', )
-    search_fields = ('user_email', 'message', )
+    list_filter = ('company',)
+    search_fields = ('user_email', 'message',)
     list_display = ('recorded_on', 'user', 'company',
                     'is_masquerading', 'masquerading_user',
-                    'message', )
-    ordering = ('-recorded_on', )
+                    'message',)
+    ordering = ('-recorded_on',)
     list_per_page = 50
     fieldsets = (
         ('', {
-            'fields': ('recorded_on', 'user_id', 'user_email', 'company', ),
+            'fields': ('recorded_on', 'user_id', 'user_email', 'company',),
         }),
         ('Masquerading User', {
-            'fields': ('masquerading_user_email', 'masquerading_user_id', ),
+            'fields': ('masquerading_user_email', 'masquerading_user_id',),
         }),
         ('Audit Log Message', {
-            'fields': ('message', ),
+            'fields': ('message',),
         }),
     )
     readonly_fields = ('created_on', 'updated_on', 'recorded_on', 'user_id',
                        'user_email', 'company', 'message',
-                       'masquerading_user_email', 'masquerading_user_id', )
+                       'masquerading_user_email', 'masquerading_user_id',)
     actions = []
 
     def has_delete_permission(self, request, obj=None):
@@ -385,11 +387,13 @@ class AuditLogEventAdmin(django.contrib.admin.ModelAdmin):
 
     def is_masquerading(self, obj):
         return obj.is_masquerading
+
     is_masquerading.boolean = True
     is_masquerading.short_description = 'Masquerade?'
 
     def user(self, obj):
         return '{}&nbsp;({})'.format(obj.user_email, obj.user_id)
+
     user.admin_order_field = 'user_id'
     user.allow_tags = True
 
@@ -399,6 +403,7 @@ class AuditLogEventAdmin(django.contrib.admin.ModelAdmin):
                 obj.masquerading_user_email, obj.masquerading_user_id)
         else:
             return ''
+
     masquerading_user.short_description = 'Masquerading User'
     masquerading_user.admin_order_field = 'masquerading_user_id'
     masquerading_user.allow_tags = True
