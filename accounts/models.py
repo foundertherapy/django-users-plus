@@ -111,7 +111,7 @@ class User(django.contrib.auth.models.AbstractBaseUser,
     def __init__(self, *args, **kwargs):
         super(User, self).__init__(*args, **kwargs)
         # hack the admin to change the superuser field verbose name
-        superuser_field = self._meta.get_field('is_superuser')[0]
+        superuser_field = self._meta.get_field('is_superuser')
         superuser_field.verbose_name = _('Superuser')
 
     def __unicode__(self):
