@@ -1,5 +1,7 @@
 from __future__ import unicode_literals
+
 import logging
+
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 import django.core.mail
@@ -10,6 +12,7 @@ import django.utils.timezone
 import django.core.validators
 import django.core.urlresolvers
 import django.contrib.sites.models
+
 import timezone_field
 import localflavor.us.models
 
@@ -79,7 +82,7 @@ class UserManager(django.contrib.auth.models.BaseUserManager):
 class User(django.contrib.auth.models.AbstractBaseUser,
            django.contrib.auth.models.PermissionsMixin):
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ('first_name', 'last_name',)
+    REQUIRED_FIELDS = ('first_name', 'last_name', )
 
     PERMISSION_MASQUERADE = 'accounts.masquerade'
 
@@ -118,7 +121,7 @@ class User(django.contrib.auth.models.AbstractBaseUser,
         """
         Returns the first_name plus the last_name, with a space in between.
         """
-        names = [n for n in (self.first_name, self.last_name,) if n]
+        names = [n for n in (self.first_name, self.last_name, ) if n]
         if names:
             return ' '.join(names)
         else:
