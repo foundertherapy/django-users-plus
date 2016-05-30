@@ -45,6 +45,7 @@ class UserCreationForm(django.forms.ModelForm):
 
     class Meta:
         model = models.User
+        fields = '__all__'
 
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1")
@@ -77,6 +78,7 @@ class UserChangeForm(django.forms.ModelForm):
 
     class Meta:
         model = models.User
+        fields = '__all__'
 
     def clean_password(self):
         return self.initial.get(
@@ -141,12 +143,11 @@ class UserAdmin(django.contrib.auth.admin.UserAdmin):
         return queryset
 
     def get_urls(self):
-        from django.conf.urls import patterns
-        return patterns(
-            '',
-            (r'^(\d+)/password/$',
+        from django.conf.urls import url
+        return [
+            url(r'^(\d+)/password/$',
              self.admin_site.admin_view(self.user_change_password))
-        ) + super(UserAdmin, self).get_urls()
+        ] + super(UserAdmin, self).get_urls()
 
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = super(UserAdmin, self).get_readonly_fields(
@@ -339,7 +340,7 @@ class CompanyAdmin(django.contrib.admin.ModelAdmin):
     readonly_fields = ('created_on', 'updated_on', )
     fields = ('created_on', 'updated_on', 'name',
               'street_address', 'street_address_2', 'city', 'state',
-              'postal_code',)
+              'postal_code', )
 
     def has_delete_permission(self, request, obj=None):
         return False

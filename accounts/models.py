@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 import logging
 
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 import django.core.mail
 import django.contrib.auth.models
@@ -63,6 +64,7 @@ class UserManager(django.contrib.auth.models.BaseUserManager):
             email=email, first_name=first_name, last_name=last_name,
             is_staff=False, is_active=True, is_superuser=False, **extra_fields)
         user.set_password(password)
+        user.last_login = timezone.now()
         user.save(using=self._db)
         return user
 
@@ -77,7 +79,7 @@ class UserManager(django.contrib.auth.models.BaseUserManager):
         return u
 
 
-class User(django.contrib.auth.models.AbstractBaseUser,
+class AbstractUser(django.contrib.auth.models.AbstractBaseUser,
            django.contrib.auth.models.PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ('first_name', 'last_name', )
@@ -95,7 +97,7 @@ class User(django.contrib.auth.models.AbstractBaseUser,
     email = django.db.models.EmailField(_('Email'), unique=True)
     timezone = timezone_field.TimeZoneField(default='America/New_York')
 
-    company = django.db.models.ForeignKey(Company, null=True, blank=True, related_name='users')
+    company = django.db.models.ForeignKey(Company, null=True, related_name='users')
 
     objects = UserManager()
 
@@ -105,11 +107,13 @@ class User(django.contrib.auth.models.AbstractBaseUser,
         permissions = (
             ('masquerade', 'Can Masquerade'),
         )
+        abstract = True
+        swappable = 'AUTH_USER_MODEL'
 
     def __init__(self, *args, **kwargs):
         super(User, self).__init__(*args, **kwargs)
         # hack the admin to change the superuser field verbose name
-        superuser_field = self._meta.get_field_by_name('is_superuser')[0]
+        superuser_field = self._meta.get_field('is_superuser')
         superuser_field.verbose_name = _('Superuser')
 
     def __unicode__(self):
@@ -137,6 +141,10 @@ class User(django.contrib.auth.models.AbstractBaseUser,
             subject, message, from_email, [self.email], **kwargs)
 
 
+class User(AbstractUser):
+    class Meta(django.contrib.auth.models.AbstractBaseUser.Meta):
+            swappable = 'AUTH_USER_MODEL'
+
 class AuditLogEvent(django.db.models.Model):
     created_on = django.db.models.DateTimeField(auto_now_add=True)
     updated_on = django.db.models.DateTimeField(auto_now=True)
@@ -144,7 +152,8 @@ class AuditLogEvent(django.db.models.Model):
 
     user_id = django.db.models.IntegerField(_('User ID'), db_index=True)
     user_email = django.db.models.EmailField(_('User Email'), db_index=True)
-    company = django.db.models.ForeignKey('accounts.Company')
+    company = django.db.models.ForeignKey('accounts.Company', null=True, on_delete=django.db.models.SET_NULL)
+
     message = django.db.models.TextField(_('Audit Message'))
     masquerading_user_id = django.db.models.IntegerField(
         _('Masquerading User ID'), db_index=True, blank=True, null=True)
