@@ -100,6 +100,7 @@ class User(django.contrib.auth.models.AbstractBaseUser,
         permissions = (
             ('masquerade', 'Can Masquerade'),
         )
+        swappable = 'AUTH_USER_MODEL'
 
     def __init__(self, *args, **kwargs):
         super(User, self).__init__(*args, **kwargs)
