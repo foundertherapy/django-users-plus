@@ -26,9 +26,9 @@ Quick start
 
 2. This library will use the default AuditLogEvent model for events logging, if you need to customize it, please extend it in your app, and add the following tho the settings::
 
-``
+```
 AUDIT_LOG_EVENT_MODEL = '<app name>.<the name of the model that is extending the base AuditLogEvent>'
-``
+```
 
 3.Include the accounts URLconf in your project urls.py like this::
 
