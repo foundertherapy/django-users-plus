@@ -97,7 +97,7 @@ class User(django.contrib.auth.models.AbstractBaseUser,
     email = django.db.models.EmailField(_('Email'), unique=True)
     timezone = timezone_field.TimeZoneField(default='America/New_York')
 
-    company = django.db.models.ForeignKey(Company, null=True, related_name='users')
+    company = django.db.models.ForeignKey(Company, null=True, related_name='%(app_label)s_%(class)s_users')
 
     objects = UserManager()
 
@@ -139,20 +139,24 @@ class User(django.contrib.auth.models.AbstractBaseUser,
             subject, message, from_email, [self.email], **kwargs)
 
 
-class AuditLogEvent(django.db.models.Model):
+class AbstractAuditLogEventBase(django.db.models.Model):
     created_on = django.db.models.DateTimeField(auto_now_add=True)
     updated_on = django.db.models.DateTimeField(auto_now=True)
     recorded_on = django.db.models.DateTimeField(auto_now_add=True)
 
     user_id = django.db.models.IntegerField(_('User ID'), db_index=True)
     user_email = django.db.models.EmailField(_('User Email'), db_index=True)
-    company = django.db.models.ForeignKey('accounts.Company', null=True, on_delete=django.db.models.SET_NULL)
+    company = django.db.models.ForeignKey('accounts.Company', null=True, on_delete=django.db.models.SET_NULL,
+                                          related_name='%(app_label)s_%(class)s_users')
 
     message = django.db.models.TextField(_('Audit Message'))
     masquerading_user_id = django.db.models.IntegerField(
         _('Masquerading User ID'), db_index=True, blank=True, null=True)
     masquerading_user_email = django.db.models.EmailField(
         _('Masquerading User Email'), db_index=True, blank=True)
+
+    class Meta:
+        abstract = True
 
     def __unicode__(self):
         if self.is_masquerading:
@@ -169,3 +173,7 @@ class AuditLogEvent(django.db.models.Model):
     @property
     def is_masquerading(self):
         return self.masquerading_user_id > 0
+
+
+class AuditLogEvent(AbstractAuditLogEventBase):
+    pass
