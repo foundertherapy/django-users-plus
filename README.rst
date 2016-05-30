@@ -21,11 +21,12 @@ Quick start
     INSTALLED_APPS = [
         ...
         'accounts',
+        'django.contrib.sites',
     ]
 
 2. Include the accounts URLconf in your project urls.py like this::
 
-    url(r'^/', include('accounts.urls')),
+    url(r'^', include('accounts.urls')),
 
 3. Run `python manage.py migrate` to create the accounts models.
 
