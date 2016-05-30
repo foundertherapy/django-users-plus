@@ -18,13 +18,11 @@ def log_audit_event(message, **kwargs):
 
     if settings.AUDIT_LOG_EVENT_MODEL:
         model = apps.get_model(settings.AUDIT_LOG_EVENT_MODEL)
-        e = model(
-                user_id=user.id, user_email=user.email, company=user.company,
-                message=message)
     else:
-        e = models.AuditLogEvent(
-            user_id=user.id, user_email=user.email, company=user.company,
-            message=message)
+        model = models.AuditLogEvent
+
+    e = model(user_id=user.id, user_email=user.email, company=user.company,
+              message=message)
 
     if is_masquerading:
         masquerading_user = models.User.objects.get(
