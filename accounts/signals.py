@@ -16,7 +16,7 @@ def log_audit_event(message, **kwargs):
     if not user:
         return
 
-    if settings.is_defined('AUDIT_LOG_EVENT_MODEL'):
+    if hasattr(settings, 'AUDIT_LOG_EVENT_MODEL'):
         model = apps.get_model(settings.AUDIT_LOG_EVENT_MODEL)
     else:
         model = models.AuditLogEvent
