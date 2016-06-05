@@ -17,6 +17,8 @@ import django.utils.decorators
 import django.core.urlresolvers
 import django.views.decorators.debug
 from django.utils.translation import ugettext_lazy as _
+from django.conf import settings
+from django.apps import apps
 
 import signals
 import models
@@ -44,7 +46,7 @@ class UserCreationForm(django.forms.ModelForm):
         help_text=_("Enter the same password as above, for verification."))
 
     class Meta:
-        model = models.User
+        model = apps.get_model(settings.AUTH_USER_MODEL)
         fields = '__all__'
 
     def clean_password2(self):
@@ -77,15 +79,15 @@ class UserChangeForm(django.forms.ModelForm):
                     'using <a href="password/">this form</a>.'))
 
     class Meta:
-        model = models.User
+        model = apps.get_model(settings.AUTH_USER_MODEL)
         fields = '__all__'
 
     def clean_password(self):
         return self.initial.get(
-            'password', models.User.objects.make_random_password())
+            'password',  apps.get_model(settings.AUTH_USER_MODEL).objects.make_random_password())
 
 
-@django.contrib.admin.register(models.User)
+@django.contrib.admin.register(apps.get_model(settings.AUTH_USER_MODEL))
 class UserAdmin(django.contrib.auth.admin.UserAdmin):
     form = UserChangeForm
     add_form = UserCreationForm
@@ -160,13 +162,13 @@ class UserAdmin(django.contrib.auth.admin.UserAdmin):
             readonly_fields = set(readonly_fields)
         return readonly_fields
 
-    def log_addition(self, request, object):
-        super(UserAdmin, self).log_addition(request, object)
+    def log_addition(self, request, object, message):
+        super(UserAdmin, self).log_addition(request, object, message)
         signals.user_create.send(
             sender=self.__class__, request=request, user=object)
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
-        user = models.User.objects.get(pk=object_id)
+        user = apps.get_model(settings.AUTH_USER_MODEL).objects.get(pk=object_id)
         old_email = user.email
         old_is_active = user.is_active
 
@@ -175,7 +177,7 @@ class UserAdmin(django.contrib.auth.admin.UserAdmin):
 
         if request.method == 'POST':
             # be sure to refresh the user since its likely changed
-            user = models.User.objects.get(pk=object_id)
+            user = apps.get_model(settings.AUTH_USER_MODEL).objects.get(pk=object_id)
             if user.email != old_email:
                 signals.user_email_change.send(
                     sender=self.__class__, request=request, user=user,
@@ -349,7 +351,7 @@ class CompanyAdmin(django.contrib.admin.ModelAdmin):
         if 'name' in form.changed_data:
             signals.company_name_change.send(
                 sender=self.__class__, request=request, user=request.user,
-                company=obj, old_name=form.initial['name'], new_name=obj.name)
+                company=obj, old_name=form.initial.get('name'), new_name=obj.name)
         super(CompanyAdmin, self).save_model(request, obj, form, change)
 
 
