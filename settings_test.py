@@ -5,15 +5,6 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 APPSERVER = os.uname()[1]
 
-# Parse database configuration from $DATABASE_URL
-import dj_database_url
-DATABASE_URL = os.environ.get(u'DATABASE_URL', u'sqlite:///accounts.sqlite')
-DATABASES = {
-    u'default': dj_database_url.parse(DATABASE_URL),
-}
-
-ROOT_URLCONF = 'urls'
-
 SITE_ID = 1
 INTERNAL_IPS = ('127.0.0.1', )
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', ]
@@ -32,15 +23,24 @@ INSTALLED_APPS = (
     'accounts',
 )
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join('BASE_DIR' , 'daccountsb.sqlite3'),
+    }
+}
+
+ROOT_URLCONF = 'urls'
+
 AUTH_USER_MODEL = 'accounts.User'
+
 LOGIN_URL = 'login'
 LOGOUT_URL = 'logout'
 LOGIN_REDIRECT_URL = 'index'
 
 MIDDLEWARE_CLASSES = (
-    'djangosecure.middleware.SecurityMiddleware',
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
