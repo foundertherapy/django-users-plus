@@ -1,3 +1,6 @@
+.. image:: https://circleci.com/gh/foundertherapy/django-users-plus.svg?style=svg
+    :target: https://circleci.com/gh/foundertherapy/django-users-plus
+
 ========
 Accounts
 ========
