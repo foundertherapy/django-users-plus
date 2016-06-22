@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 import os
 
 
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+BASE_DIR = os.path.dirname(__file__)
 APPSERVER = os.uname()[1]
 
 SITE_ID = 1
@@ -26,11 +26,11 @@ INSTALLED_APPS = (
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join('BASE_DIR' , 'daccountsb.sqlite3'),
+        'NAME': 'db.sqlite',
     }
 }
 
-ROOT_URLCONF = 'urls'
+ROOT_URLCONF = 'accounts.urls'
 
 AUTH_USER_MODEL = 'accounts.User'
 

@@ -12,6 +12,8 @@ import django.utils.timezone
 import django.core.validators
 import django.core.urlresolvers
 import django.contrib.sites.models
+from django.conf import settings
+from django.apps import apps
 
 import timezone_field
 import localflavor.us.models
@@ -56,8 +58,9 @@ class UserManager(django.contrib.auth.models.BaseUserManager):
         Creates and saves a User with the given email and password.
         """
         email = UserManager.normalize_email(email)
-        user = User(email=email, first_name=first_name, last_name=last_name,
-                    is_staff=False, is_active=True, is_superuser=False, **extra_fields)
+        user = apps.get_model(settings.AUTH_USER_MODEL)(
+            email=email, first_name=first_name, last_name=last_name,
+            is_staff=False, is_active=True, is_superuser=False, **extra_fields)
         user.set_password(password)
         user.last_login = timezone.now()
         user.save(using=self._db)
@@ -72,8 +75,7 @@ class UserManager(django.contrib.auth.models.BaseUserManager):
         return u
 
 
-class User(django.contrib.auth.models.AbstractBaseUser,
-           django.contrib.auth.models.PermissionsMixin):
+class AbstractUser(django.contrib.auth.models.AbstractBaseUser, django.contrib.auth.models.PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ('first_name', 'last_name', )
 
@@ -100,9 +102,11 @@ class User(django.contrib.auth.models.AbstractBaseUser,
         permissions = (
             ('masquerade', 'Can Masquerade'),
         )
+        abstract = True
+        swappable = 'AUTH_USER_MODEL'
 
     def __init__(self, *args, **kwargs):
-        super(User, self).__init__(*args, **kwargs)
+        super(AbstractUser, self).__init__(*args, **kwargs)
         # hack the admin to change the superuser field verbose name
         superuser_field = self._meta.get_field('is_superuser')
         superuser_field.verbose_name = _('Superuser')
@@ -129,6 +133,10 @@ class User(django.contrib.auth.models.AbstractBaseUser,
         Sends an email to this User.
         """
         django.core.mail.send_mail(subject, message, from_email, [self.email], **kwargs)
+
+
+class User(AbstractUser):
+    pass
 
 
 class AbstractAuditLogEventBase(django.db.models.Model):
