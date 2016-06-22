@@ -38,18 +38,20 @@ AUDIT_LOG_EVENT_MODEL = '<app name>.<the name of the model that is extending the
 
     url(r'^', include('accounts.urls')),
 
-4. Run `python manage.py migrate` to create the accounts models.
+4.  Add SITE_ID into settings file.
 
-5. Start the development server admin/ to create users and companies. From Users list view, you can take advantage of the masquerading feature.
+5. Run `python manage.py migrate` to create the accounts models.
 
-6. For timezone enablement, add "" to MIDDLEWARE_CLASSES like this::
+6. Start the development server admin/ to create users and companies. From Users list view, you can take advantage of the masquerading feature.
+
+7. For timezone enablement, add "" to MIDDLEWARE_CLASSES like this::
 
     MIDDLEWARE_CLASSES = (
         ...
         'accounts.middleware.TimezoneMiddleware',
     )
 
-7. A new Audit Log model added to capture the following events::
+8. A new Audit Log model added to capture the following events::
 
     - User creation
     - User login
