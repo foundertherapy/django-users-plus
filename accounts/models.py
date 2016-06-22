@@ -72,7 +72,7 @@ class UserManager(django.contrib.auth.models.BaseUserManager):
         return u
 
 
-class User(django.contrib.auth.models.AbstractBaseUser,
+class AbstractUser(django.contrib.auth.models.AbstractBaseUser,
            django.contrib.auth.models.PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ('first_name', 'last_name', )
@@ -100,6 +100,7 @@ class User(django.contrib.auth.models.AbstractBaseUser,
         permissions = (
             ('masquerade', 'Can Masquerade'),
         )
+        abstract = True
         swappable = 'AUTH_USER_MODEL'
 
     def __init__(self, *args, **kwargs):
@@ -130,6 +131,11 @@ class User(django.contrib.auth.models.AbstractBaseUser,
         Sends an email to this User.
         """
         django.core.mail.send_mail(subject, message, from_email, [self.email], **kwargs)
+
+
+class User(AbstractUser):
+    class Meta(django.contrib.auth.models.AbstractBaseUser.Meta):
+            swappable = 'AUTH_USER_MODEL'
 
 
 class AbstractAuditLogEventBase(django.db.models.Model):
