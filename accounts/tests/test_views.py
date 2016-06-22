@@ -34,12 +34,10 @@ class MasqueradeStartTestCase(django.test.TestCase):
     fixtures = ('test_users.json', 'test_companies.json', 'test_groups.json', )
 
     def setUp(self):
-        self.group_masquerade = django.contrib.auth.models.Group.objects.get(
-            name='Masquerade')
+        self.group_masquerade = django.contrib.auth.models.Group.objects.get(name='Masquerade')
         # make sure masquerade group has masquerade permission
-        masquerade_permission = django.contrib.auth.models.Permission.objects.\
-            get(codename='masquerade')
-        self.group_masquerade.permissions = [masquerade_permission, ]
+        permission_masquerade = django.contrib.auth.models.Permission.objects.get(codename='masquerade')
+        self.group_masquerade.permissions.add(permission_masquerade)
 
     def test_user_masquerade_admin_user(self):
         c = django.test.client.Client()

@@ -75,8 +75,7 @@ class UserManager(django.contrib.auth.models.BaseUserManager):
         return u
 
 
-class AbstractUser(django.contrib.auth.models.AbstractBaseUser,
-           django.contrib.auth.models.PermissionsMixin):
+class AbstractUser(django.contrib.auth.models.AbstractBaseUser, django.contrib.auth.models.PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ('first_name', 'last_name', )
 
@@ -137,8 +136,7 @@ class AbstractUser(django.contrib.auth.models.AbstractBaseUser,
 
 
 class User(AbstractUser):
-    class Meta(django.contrib.auth.models.AbstractBaseUser.Meta):
-            swappable = 'AUTH_USER_MODEL'
+    pass
 
 
 class AbstractAuditLogEventBase(django.db.models.Model):
