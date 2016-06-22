@@ -7,11 +7,7 @@ from setuptools import setup, find_packages
 
 
 with open('accounts/__init__.py', 'r') as init_file:
-    version = re.search(
-        '^__version__ = [\'"]([^\'"]+)[\'"]',
-        init_file.read(),
-        re.MULTILINE,
-    ).group(1)
+    version = re.search('^__version__ = [\'"]([^\'"]+)[\'"]', init_file.read(), re.MULTILINE).group(1)
 
 # allow setup.py to be run from any path
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
@@ -27,11 +23,11 @@ setup(
         'Local Timezone enablement, and extra fields to User model'
     ),
     url='http://github.com/foundertherapy/django-users-plus/',
-    download_url='https://github.com/foundertherapy/django-users-plus/archive/1.0.0.tar.gz',
+    download_url='https://github.com/foundertherapy/django-users-plus/archive/1.0.1.tar.gz',
     author='Dana Spiegel',
     author_email='dana@foundertherapy.co',
     install_requires=[
-        'Django>=1.7',
+        'Django>=1.9',
         'django-timezone-field>=1.1',
         'django-localflavor==1.1',
     ],

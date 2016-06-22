@@ -18,16 +18,13 @@ class TimezoneMiddlewareTestCase(django.test.TestCase):
         self.factory = django.test.client.RequestFactory()
         self.company = models.Company.objects.get(pk=1)
         self.user = models.User.objects.create_user(
-            email=u'test@example.com', password=u'top_secret',
-            first_name=u'test', last_name=u'user', company=self.company)
+            email='test@example.com', password='top_secret',
+            first_name='test', last_name='user', company=self.company)
 
     def test_process_request(self):
-        request = self.factory.get(u'/admin')
+        request = self.factory.get('/admin')
         request.user = self.user
-        self.assertEqual(
-            django.utils.timezone.get_current_timezone(),
-            django.utils.timezone.get_default_timezone())
+        self.assertEqual(django.utils.timezone.get_current_timezone(), django.utils.timezone.get_default_timezone())
         tz_middleware = middleware.TimezoneMiddleware()
         tz_middleware.process_request(request)
-        self.assertEqual(
-            django.utils.timezone.get_current_timezone(), self.user.timezone)
+        self.assertEqual(django.utils.timezone.get_current_timezone(), self.user.timezone)

@@ -21,12 +21,10 @@ def log_audit_event(message, **kwargs):
     else:
         model = models.AuditLogEvent
 
-    e = model(user_id=user.id, user_email=user.email, company=user.company,
-              message=message)
+    e = model(user_id=user.id, user_email=user.email, company=user.company, message=message)
 
     if is_masquerading:
-        masquerading_user = models.User.objects.get(
-            pk=request.session['masquerade_user_id'])
+        masquerading_user = models.User.objects.get(pk=request.session['masquerade_user_id'])
         e.masquerading_user_id = masquerading_user.id
         e.masquerading_user_email = masquerading_user.email
 
@@ -39,14 +37,12 @@ masquerade_end = Signal(providing_args=['request', 'user'])
 user_password_reset_request = Signal(providing_args=['request', 'user'])
 
 user_password_change = Signal(providing_args=['request', 'user'])
-user_email_change = Signal(
-    providing_args=['request', 'user', 'old_email', 'new_email'])
+user_email_change = Signal(providing_args=['request', 'user', 'old_email', 'new_email'])
 user_create = Signal(providing_args=['request', 'user'])
 user_deactivate = Signal(providing_args=['request', 'user'])
 user_activate = Signal(providing_args=['request', 'user'])
 
-company_name_change = Signal(
-    providing_args=['request', 'company', 'old_name', 'new_name'])
+company_name_change = Signal(providing_args=['request', 'company', 'old_name', 'new_name'])
 
 
 @receiver(django.contrib.auth.signals.user_logged_in)
@@ -67,16 +63,14 @@ def logout_callback(sender, **kwargs):
 @receiver(masquerade_start)
 def masquerade_start_callback(sender, **kwargs):
     masquerade_as = kwargs['masquerade_as']
-    message = 'Masquerade start as {} ({})'.format(
-        masquerade_as.email, masquerade_as.id)
+    message = 'Masquerade start as {} ({})'.format(masquerade_as.email, masquerade_as.id)
     log_audit_event(message, **kwargs)
 
 
 @receiver(masquerade_end)
 def masquerade_end_callback(sender, **kwargs):
     masquerade_as = kwargs['masquerade_as']
-    message = 'Masquerade end as {} ({})'.format(
-        masquerade_as.email, masquerade_as.id)
+    message = 'Masquerade end as {} ({})'.format(masquerade_as.email, masquerade_as.id)
     log_audit_event(message, **kwargs)
 
 
@@ -108,8 +102,7 @@ def email_change_callback(sender, **kwargs):
 @receiver(user_deactivate)
 def deactivate_callback(sender, **kwargs):
     request = kwargs['request']
-    message = 'Deactivate by: {} ({})'.format(
-        request.user.email, request.user.id)
+    message = 'Deactivate by: {} ({})'.format(request.user.email, request.user.id)
     log_audit_event(message, **kwargs)
 
 
@@ -125,6 +118,5 @@ def company_name_change_callback(sender, **kwargs):
     company = kwargs['company']
     old_name = kwargs['old_name']
     new_name = kwargs['new_name']
-    message = 'Company id: {} name change from: {} to: {}'.format(
-        company.id, old_name, new_name)
+    message = 'Company id: {} name change from: {} to: {}'.format(company.id, old_name, new_name)
     log_audit_event(message, **kwargs)

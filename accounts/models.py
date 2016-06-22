@@ -24,10 +24,8 @@ class Company(django.db.models.Model):
     updated_on = django.db.models.DateTimeField(auto_now=True)
 
     name = django.db.models.CharField(_('Name'), max_length=100)
-    street_address = django.db.models.CharField(
-        _('Street Address'), max_length=200, blank=True)
-    street_address_2 = django.db.models.CharField(
-        _('Street Address 2'), max_length=200, blank=True)
+    street_address = django.db.models.CharField(_('Street Address'), max_length=200, blank=True)
+    street_address_2 = django.db.models.CharField(_('Street Address 2'), max_length=200, blank=True)
     city = django.db.models.CharField(_('City'), max_length=100, blank=True)
     state = localflavor.us.models.USStateField(blank=True)
     postal_code = localflavor.us.models.USZipCodeField(blank=True)
@@ -46,32 +44,27 @@ class Company(django.db.models.Model):
         if self.street_address_2:
             address.append(self.street_address_2)
         if self.city:
-            address.append('{}, {} {}'.format(
-                self.city, self.state, self.postal_code))
+            address.append('{}, {} {}'.format(self.city, self.state, self.postal_code))
         else:
             address.append('{} {}'.format(self.state, self.postal_code))
         return address
 
 
 class UserManager(django.contrib.auth.models.BaseUserManager):
-    def create_user(self, email, password, first_name, last_name,
-                    **extra_fields):
+    def create_user(self, email, password, first_name, last_name, **extra_fields):
         """
         Creates and saves a User with the given email and password.
         """
         email = UserManager.normalize_email(email)
-        user = User(
-            email=email, first_name=first_name, last_name=last_name,
-            is_staff=False, is_active=True, is_superuser=False, **extra_fields)
+        user = User(email=email, first_name=first_name, last_name=last_name,
+                    is_staff=False, is_active=True, is_superuser=False, **extra_fields)
         user.set_password(password)
         user.last_login = timezone.now()
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, password, first_name, last_name,
-                         **extra_fields):
-        u = self.create_user(email, password, first_name, last_name,
-                             **extra_fields)
+    def create_superuser(self, email, password, first_name, last_name, **extra_fields):
+        u = self.create_user(email, password, first_name, last_name, **extra_fields)
         u.is_staff = True
         u.is_active = True
         u.is_superuser = True
@@ -135,8 +128,7 @@ class User(django.contrib.auth.models.AbstractBaseUser,
         """
         Sends an email to this User.
         """
-        django.core.mail.send_mail(
-            subject, message, from_email, [self.email], **kwargs)
+        django.core.mail.send_mail(subject, message, from_email, [self.email], **kwargs)
 
 
 class AbstractAuditLogEventBase(django.db.models.Model):
@@ -150,22 +142,17 @@ class AbstractAuditLogEventBase(django.db.models.Model):
                                           related_name='%(app_label)s_%(class)s_users')
 
     message = django.db.models.TextField(_('Audit Message'))
-    masquerading_user_id = django.db.models.IntegerField(
-        _('Masquerading User ID'), db_index=True, blank=True, null=True)
-    masquerading_user_email = django.db.models.EmailField(
-        _('Masquerading User Email'), db_index=True, blank=True)
+    masquerading_user_id = django.db.models.IntegerField(_('Masquerading User ID'), db_index=True, blank=True, null=True)
+    masquerading_user_email = django.db.models.EmailField(_('Masquerading User Email'), db_index=True, blank=True)
 
     class Meta:
         abstract = True
 
     def __unicode__(self):
         if self.is_masquerading:
-            return '{} {} [{}] {}'.format(
-                self.recorded_on, self.user_email, self.masquerading_user_email,
-                self.message)
+            return '{} {} [{}] {}'.format(self.recorded_on, self.user_email, self.masquerading_user_email, self.message)
         else:
-            return '{} {} {}'.format(
-                self.recorded_on, self.user_email, self.message)
+            return '{} {} {}'.format(self.recorded_on, self.user_email, self.message)
 
     def delete(self, using=None):
         return
