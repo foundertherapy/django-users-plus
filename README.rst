@@ -24,6 +24,7 @@ Quick start
     INSTALLED_APPS = [
         ...
         'accounts',
+        'django.contrib.sites',
     ]
 
 
@@ -35,7 +36,7 @@ AUDIT_LOG_EVENT_MODEL = '<app name>.<the name of the model that is extending the
 
 3.Include the accounts URLconf in your project urls.py like this::
 
-    url(r'^/', include('accounts.urls')),
+    url(r'^', include('accounts.urls')),
 
 4. Run `python manage.py migrate` to create the accounts models.
 
