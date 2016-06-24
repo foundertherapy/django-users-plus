@@ -125,7 +125,9 @@ class AbstractUser(django.contrib.auth.models.AbstractBaseUser, django.contrib.a
             return self.email
 
     def get_short_name(self):
-        """Returns the short name for the user."""
+        """
+        Returns the short name for the user.
+        """
         return self.first_name
 
     def email_user(self, subject, message, from_email=None, **kwargs):

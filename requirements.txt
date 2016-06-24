@@ -6,3 +6,4 @@ pyflakes
 django-timezone-field
 django-localflavor
 bcrypt
+mock

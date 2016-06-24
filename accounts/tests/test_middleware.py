@@ -18,8 +18,7 @@ class TimezoneMiddlewareTestCase(django.test.TestCase):
         self.factory = django.test.client.RequestFactory()
         self.company = models.Company.objects.get(pk=1)
         self.user = models.User.objects.create_user(
-            email='test@example.com', password='top_secret',
-            first_name='test', last_name='user', company=self.company)
+            email='test@example.com', password='top_secret', first_name='test', last_name='user', company=self.company)
 
     def test_process_request(self):
         request = self.factory.get('/admin')
