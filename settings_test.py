@@ -30,7 +30,7 @@ DATABASES = {
     }
 }
 
-ROOT_URLCONF = 'accounts.urls'
+ROOT_URLCONF = 'urls'
 
 AUTH_USER_MODEL = 'accounts.User'
 
@@ -51,3 +51,26 @@ MIDDLEWARE_CLASSES = (
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 SESSION_COOKIE_AGE = 60 * 30  # 30 minute session length
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            os.path.join(BASE_DIR, 'test_templates'),
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.contrib.auth.context_processors.auth',
+                'accounts.context_processors.masquerade_info',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.contrib.messages.context_processors.messages',
+                'django.core.context_processors.request',
+            ],
+            'debug': True,
+        }
+    },
+]
+
