@@ -8,28 +8,33 @@ from django.apps import apps
 import models
 
 
+def is_audit_log_enabled():
+    return getattr(settings, 'ENABLE_AUDIT_LOG', False)
+
+
 def log_audit_event(message, **kwargs):
-    user = kwargs['user']
-    request = kwargs['request']
-    is_masquerading = request.session.get('is_masquerading', False)
+    if is_audit_log_enabled():
+        user = kwargs['user']
+        request = kwargs['request']
+        is_masquerading = request.session.get('is_masquerading', False)
 
-    if not user:
-        return
+        if not user:
+            return
 
-    if hasattr(settings, 'AUDIT_LOG_EVENT_MODEL'):
-        model = apps.get_model(settings.AUDIT_LOG_EVENT_MODEL)
-    else:
-        model = models.AuditLogEvent
+        if hasattr(settings, 'AUDIT_LOG_EVENT_MODEL'):
+            model = apps.get_model(settings.AUDIT_LOG_EVENT_MODEL)
+        else:
+            model = models.AuditLogEvent
 
-    e = model(user_id=user.id, user_email=user.email, company=user.company, message=message)
+        e = model(user_id=user.id, user_email=user.email, company=user.company, message=message)
 
-    if is_masquerading:
-        masquerading_user = models.User.objects.get(pk=request.session['masquerade_user_id'])
-        e.masquerading_user_id = masquerading_user.id
-        e.masquerading_user_email = masquerading_user.email
+        if is_masquerading:
+            masquerading_user = models.User.objects.get(pk=request.session['masquerade_user_id'])
+            e.masquerading_user_id = masquerading_user.id
+            e.masquerading_user_email = masquerading_user.email
 
-    e.save()
-    return e
+        e.save()
+        return e
 
 
 masquerade_start = Signal(providing_args=['request', 'user', 'masquerade_as'])
@@ -47,12 +52,7 @@ company_name_change = Signal(providing_args=['request', 'company', 'old_name', '
 
 @receiver(django.contrib.auth.signals.user_logged_in)
 def login_callback(sender, **kwargs):
-    e = log_audit_event('Sign in', **kwargs)
-    user = kwargs['user']
-    if getattr(user, 'is_masquerading', False):
-        e.masquerading_user_email = user.masquerading_user.email
-        e.masquerading_user_id = user.masquerading_user.id
-        e.save()
+    log_audit_event('Sign in', **kwargs)
 
 
 @receiver(django.contrib.auth.signals.user_logged_out)

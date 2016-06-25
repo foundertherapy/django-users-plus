@@ -74,3 +74,4 @@ TEMPLATES = [
     },
 ]
 
+ENABLE_AUDIT_LOG = False
