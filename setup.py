@@ -19,11 +19,12 @@ setup(
     # license='MIT License',
     # include_package_data=True,
     description=(
-        'A django app that provides extra features including Masquerading, '
-        'Local Timezone enablement, and extra fields to User model'
+        'A django app that provides extra features including masquerading, local timezone support on users, '
+        'an audit log for tracking admin and view-based data changes and activities, and support for Company '
+        'models and added fields to User model.'
     ),
     url='http://github.com/foundertherapy/django-users-plus/',
-    download_url='https://github.com/foundertherapy/django-users-plus/archive/1.0.1.tar.gz',
+    download_url='https://github.com/foundertherapy/django-users-plus/archive/1.0.2.tar.gz',
     author='Dana Spiegel',
     author_email='dana@foundertherapy.co',
     install_requires=[
@@ -31,5 +32,5 @@ setup(
         'django-timezone-field>=1.1',
         'django-localflavor==1.1',
     ],
-    keywords=['users', 'django', 'masquerading', 'masquerade', 'impersonate', 'timezone', ],
+    keywords=['users', 'django', 'masquerading', 'masquerade', 'impersonate', 'timezone', 'company', 'audit log'],
 )
