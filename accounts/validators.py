@@ -5,7 +5,7 @@ import re
 class ComplexPasswordValidator(object):
 
     def validate(self, password, user=None):
-        regex = "(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&]"
+        regex = '(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&]'
         if not re.match(regex, password):
              raise ValidationError(_('Password should contain uppercase, lowercase and numeric values and at least'
                                      'one of the following $@$!%*?&'), code='password_is_weak')
