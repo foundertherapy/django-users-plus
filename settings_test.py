@@ -19,7 +19,6 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.admin',
     'django.contrib.sessions',
-    'django_extensions',
     'localflavor',
     'accounts',
 )
