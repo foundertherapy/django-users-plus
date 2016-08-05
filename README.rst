@@ -5,53 +5,13 @@
 Accounts
 ========
 
-Account is an app that shall add the following features to your Django project::
+Accounts is an app that adds the following features to your Django project::
 
-1. An inherited User model with extra fields like Company, First Name, Last Name, etc...
+1. An swappable User model that uses email as the username for sign in, and has a timezone field (and supporting middleware) that will show localized times in the Admin site.
 
-2. Create users and login using email address instead of username.
+2. The ability to sign-in as another User from the User admin screen. This is enabled for superusers, any User that has masquerading permissions. By default, staff users cannot sign-in as other users, and they can never sign in as a superuser (bypassing permission checks) even with masquerading permission.
 
-3. Masquerading feature.
-
-4. Enabling Timezone to set to the user's local timezone.
-
-5. Audit log model to track extra user specific actions.
-
-Quick start
------------
-1. Add "accounts" to your INSTALLED_APPS setting like this::
-
-    INSTALLED_APPS = [
-        ...
-        'accounts',
-        'django.contrib.sites',
-    ]
-
-
-2. This library will use the default AuditLogEvent model for events logging, if you need to customize it, please extend it in your app, and add the following tho the settings::
-
-```
-ACCOUNTS_AUDIT_LOG_EVENT_MODEL = '<app name>.<the name of the model that is extending the base AuditLogEvent>'
-```
-
-3.Include the accounts URLconf in your project urls.py like this::
-
-    url(r'^', include('accounts.urls')),
-
-4.  Add SITE_ID into settings file.
-
-5. Run `python manage.py migrate` to create the accounts models.
-
-6. Start the development server admin/ to create users and companies. From Users list view, you can take advantage of the masquerading feature.
-
-7. For timezone enablement, add "" to MIDDLEWARE_CLASSES like this::
-
-    MIDDLEWARE_CLASSES = (
-        ...
-        'accounts.middleware.TimezoneMiddleware',
-    )
-
-8. A new Audit Log model added to capture the following events::
+3. A configurable audit log model that can track a number of admin activities automatically, and can be extended to track additional ones through direct use or through signals. The audit log automatically tracks the user signed into the admin, and if a user is masquerading as another user, that's noted as well.
 
     - User creation
     - User login
@@ -64,3 +24,48 @@ ACCOUNTS_AUDIT_LOG_EVENT_MODEL = '<app name>.<the name of the model that is exte
     - Activate user
     - Deactivate user
     - Company name change
+
+
+Quick start
+-----------
+1. Add "accounts" to your INSTALLED_APPS setting like this::
+
+    INSTALLED_APPS = [
+        ...
+        'accounts',
+        'django.contrib.sites',
+    ]
+
+2. Create your own models for Company, User, and AuditLogEvent, and related Admin classes that inherit from the base models provided in this library. You cannot use the models as provided because they are all declared abstract. This allows you to easily implement a relationship between User and Company that (at the moment) is very difficult to have built into the provided abstract base models. For example::
+
+    class MyCompany(models.BaseCompany):
+        bar = django.db.models.CharField(max_length=100)
+
+
+    class MyUser(models.BaseUser):
+        foo = django.db.models.CharField(max_length=100)
+        company = django.db.models.ForeignKey('MyCompany', null=True, related_name='users')
+
+
+    class MyAuditLogEvent(models.BaseAuditLogEvent):
+        baz = django.db.models.CharField(max_length=100)
+
+3. Configure the swappable User model in settings::
+
+    AUTH_USER_MODE = '<app_name>.<your User-inherited model>'
+
+4. Configure the swappable AuditLogEvent model for event logging. This is optional, but without it the AuditLogEvent signals will not work::
+
+    ACCOUNTS_ENABLE_AUDIT_LOG = True
+    ACCOUNTS_AUDIT_LOG_EVENT_MODEL = '<app name>.<your AuditLogEvent-inherited model>'
+
+5. Include the accounts URLconf in your project urls.py like this::
+
+    url(r'^', include('accounts.urls')),
+
+6. To enable timezone support for users in the Admin site, add the following to MIDDLEWARE_CLASSES::
+
+    MIDDLEWARE_CLASSES = (
+        ...
+        'accounts.middleware.TimezoneMiddleware',
+    )

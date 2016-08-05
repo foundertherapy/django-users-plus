@@ -7,7 +7,7 @@ from django.apps import apps
 
 
 def is_audit_log_enabled():
-    return getattr(settings, 'ENABLE_AUDIT_LOG', False)
+    return getattr(settings, 'ACCOUNTS_ENABLE_AUDIT_LOG', False)
 
 
 def is_audit_log_configured():

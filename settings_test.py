@@ -73,4 +73,4 @@ TEMPLATES = [
     },
 ]
 
-ENABLE_AUDIT_LOG = False
+ACCOUNTS_ENABLE_AUDIT_LOG = False
