@@ -39,20 +39,21 @@ def logout_then_login(request, login_url=None,  extra_context=None):
 @django.views.decorators.cache.never_cache
 @django.contrib.auth.decorators.login_required
 def masquerade(request, user_id=None):
-    return_page = request.META.get('HTTP_REFERER') or \
-        'admin:accounts_user_changelist'
+    User = django.contrib.auth.get_user_model()
+
+    return_page = request.META.get('HTTP_REFERER') or 'admin:index'
     if not user_id:
         django.contrib.messages.error(
             request, 'Masquerade failed: no user specified')
         return django.shortcuts.redirect(return_page)
-    if not request.user.has_perm(models.User.PERMISSION_MASQUERADE):
+    if not request.user.has_perm(User.PERMISSION_MASQUERADE):
         django.contrib.messages.error(
             request, 'Masquerade failed: insufficient privileges')
         return django.shortcuts.redirect(return_page)
 
     try:
-        user = models.User.objects.get(pk=user_id)
-    except models.User.DoesNotExist:
+        user = User.objects.get(pk=user_id)
+    except User.DoesNotExist:
         logger.error('User {} ({}) masquerading failed for user {}'.format(
             request.user.email, request.user.id, user_id))
         django.contrib.messages.error(
@@ -95,13 +96,14 @@ def masquerade(request, user_id=None):
 @django.views.decorators.cache.never_cache
 @django.contrib.auth.decorators.login_required
 def end_masquerade(request):
+    User = django.contrib.auth.get_user_model()
     if 'is_masquerading' not in request.session:
         return django.shortcuts.redirect('admin:index')
 
     if 'masquerade_user_id' in request.session:
         try:
             masqueraded_user = request.user
-            user = models.User.objects.get(
+            user = User.objects.get(
                 pk=request.session['masquerade_user_id'])
             user.backend = request.session[
                 django.contrib.auth.BACKEND_SESSION_KEY]
@@ -115,12 +117,12 @@ def end_masquerade(request):
                 masqueraded_user.email, masqueraded_user.id,
                 user.email, user.id))
             django.contrib.messages.success(request, 'Masquerade ended')
-        except models.User.DoesNotExist as e:
+        except User.DoesNotExist as e:
             logging.critical(
                 'Masquerading user {} does not exist'.format(
                     request.session['masquerade_user_id']))
 
-    return django.shortcuts.redirect('admin:accounts_user_changelist')
+    return django.shortcuts.redirect('admin:index')
 
 
 @django.views.decorators.debug.sensitive_post_parameters()
@@ -174,6 +176,8 @@ def password_reset(request, is_admin_site=False,
                    current_app=None,
                    extra_context=None,
                    html_email_template_name=None):
+    User = django.contrib.auth.get_user_model()
+
     response = django.contrib.auth.views.password_reset(
         request, is_admin_site, template_name, email_template_name,
         subject_template_name, password_reset_form, token_generator,
@@ -182,9 +186,9 @@ def password_reset(request, is_admin_site=False,
     if request.method == 'POST':
         email = request.POST['email']
         try:
-            user = models.User.objects.get(email=email)
+            user = User.objects.get(email=email)
             signals.user_password_reset_request.send(
                 sender=password_reset, request=request, user=user)
-        except models.User.DoesNotExist:
+        except User.DoesNotExist:
             pass
     return response

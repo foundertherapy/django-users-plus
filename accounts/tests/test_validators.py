@@ -2,8 +2,8 @@ from .. import validators
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-class PasswordValidatorTestCase(TestCase):
 
+class PasswordValidatorTestCase(TestCase):
     def validate_password(self, password):
         validator = validators.ComplexPasswordValidator()
         try:

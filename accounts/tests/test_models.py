@@ -2,6 +2,8 @@ from __future__ import unicode_literals
 
 import django.test
 import django.core.mail
+import django.db.models
+import django.conf
 
 import logging
 
@@ -11,15 +13,34 @@ from .. import models
 logging.disable(logging.CRITICAL)
 
 
+class UnitTestCompany(models.BaseCompany):
+    bar = django.db.models.CharField(max_length=100)
+
+
+class UnitTestUser(models.BaseUser):
+    foo = django.db.models.CharField(max_length=100)
+    company = django.db.models.ForeignKey('UnitTestCompany', null=True, related_name='users')
+
+
+class UnitTestAuditLogEvent(models.BaseAuditLogEvent):
+    baz = django.db.models.CharField(max_length=100)
+
+
+@django.test.utils.override_settings(
+    AUTH_USER_MODEL='accounts.UnitTestUser',
+)
 class UserManagerTestCase(django.test.TestCase):
-    fixtures = ('test_companies.json', )
+    @classmethod
+    def setUpTestData(cls):
+        company_1 = UnitTestCompany.objects.create(name='Example')
+        company_2 = UnitTestCompany.objects.create(name='Other Company')
 
     def setUp(self):
-        self.company = models.Company.objects.get(pk=1)
+        self.company = UnitTestCompany.objects.get(pk=1)
 
     def test_create_user(self):
-        models.User.objects.create_user('a@example.com', 'a', 'Joe', 'User', company=self.company)
-        u = models.User.objects.get(email='a@example.com')
+        UnitTestUser.objects.create_user('a@example.com', 'a', 'Joe', 'User', company=self.company)
+        u = UnitTestUser.objects.get(email='a@example.com')
         assert u
         self.assertEqual(u.first_name, 'Joe')
         self.assertEqual(u.last_name, 'User')
@@ -30,8 +51,8 @@ class UserManagerTestCase(django.test.TestCase):
         self.assertEqual(u.get_short_name(), 'Joe')
 
     def test_create_superuser(self):
-        models.User.objects.create_superuser('a@example.com', 'a', 'Joe', 'Superuser', company=self.company)
-        u = models.User.objects.get(email='a@example.com')
+        UnitTestUser.objects.create_superuser('a@example.com', 'a', 'Joe', 'Superuser', company=self.company)
+        u = UnitTestUser.objects.get(email='a@example.com')
         assert u
         self.assertEqual(u.first_name, 'Joe')
         self.assertEqual(u.last_name, 'Superuser')
@@ -40,17 +61,39 @@ class UserManagerTestCase(django.test.TestCase):
         self.assertTrue(u.is_active)
 
 
+@django.test.utils.override_settings(
+    AUTH_USER_MODEL='accounts.UnitTestUser',
+)
 class UserTestCase(django.test.TestCase):
-    fixtures = ('test_companies.json', 'test_users.json', )
+    @classmethod
+    def setUpTestData(cls):
+        company_1 = UnitTestCompany.objects.create(name='Example')
+        company_2 = UnitTestCompany.objects.create(name='Other Company')
+
+        superuser = UnitTestUser.objects.create_superuser(
+            email='superuser@example.com', password='password', first_name='Super', last_name='User')
+        superuser.company = company_1
+        superuser.save()
+
+        staffuser = UnitTestUser.objects.create_user(
+            email='staffuser@example.com', password='password', first_name='Staff', last_name='User')
+        staffuser.is_staff = True
+        staffuser.company = company_1
+        staffuser.save()
+
+        regular_user = UnitTestUser.objects.create_user(
+            email='regularuser@example.com', password='password', first_name='Regular', last_name='User')
+        regular_user.company = company_1
+        regular_user.save()
 
     def setUp(self):
-        self.company = models.Company.objects.get(pk=1)
-        self.superuser = models.User.objects.get(pk=1)
-        self.staff_user = models.User.objects.get(pk=2)
-        self.regular_user = models.User.objects.get(pk=3)
+        self.company = UnitTestCompany.objects.get(pk=1)
+        self.superuser = UnitTestUser.objects.get(pk=1)
+        self.staff_user = UnitTestUser.objects.get(pk=2)
+        self.regular_user = UnitTestUser.objects.get(pk=3)
 
     def test_get_full_name(self):
-        u = models.User()
+        u = UnitTestUser()
         self.assertEqual(u.get_full_name(), '')
         u.email = 'name@example.net'
         self.assertEqual(u.get_full_name(), 'name@example.net')
@@ -63,7 +106,7 @@ class UserTestCase(django.test.TestCase):
         self.assertEqual(u.get_full_name(), 'First Last')
 
     def test_get_short_name(self):
-        u = models.User()
+        u = UnitTestUser()
         self.assertEqual(u.get_short_name(), '')
         u.email = 'name@example.net'
         self.assertEqual(u.get_short_name(), '')
@@ -73,7 +116,7 @@ class UserTestCase(django.test.TestCase):
         self.assertEqual(u.get_short_name(), 'First')
 
     def test_email_user(self):
-        u = models.User(email='test@example.net')
+        u = UnitTestUser(email='test@example.net')
         u.email_user('Subject', 'Body', 'from@example.net')
         self.assertEqual(1, len(django.core.mail.outbox))
         sent_email = django.core.mail.outbox[0]

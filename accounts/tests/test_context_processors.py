@@ -4,17 +4,40 @@ import django.test
 import django.test.client
 import django.utils.timezone
 
-from .. import models
+from test_models import (UnitTestCompany, UnitTestUser)
 
 
 logging.disable(logging.CRITICAL)
 
 
+@django.test.utils.override_settings(
+    AUTH_USER_MODEL='accounts.UnitTestUser',
+    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accounts.UnitTestAuditLogEvent',
+)
 class ContextProcessorTestCase(django.test.TestCase):
-    fixtures = ('test_companies.json', 'test_users.json')
+    @classmethod
+    def setUpTestData(cls):
+        company_1 = UnitTestCompany.objects.create(name='Example')
+        company_2 = UnitTestCompany.objects.create(name='Other Company')
+
+        superuser = UnitTestUser.objects.create_superuser(
+            email='superuser@example.com', password='password', first_name='Super', last_name='User')
+        superuser.company = company_1
+        superuser.save()
+
+        staffuser = UnitTestUser.objects.create_user(
+            email='staffuser@example.com', password='password', first_name='Staff', last_name='User')
+        staffuser.is_staff = True
+        staffuser.company = company_1
+        staffuser.save()
+
+        regular_user = UnitTestUser.objects.create_user(
+            email='regularuser@example.com', password='password', first_name='Regular', last_name='User')
+        regular_user.company = company_1
+        regular_user.save()
 
     def setUp(self):
-        self.superuser = models.User.objects.get(pk=1)
+        self.superuser = UnitTestUser.objects.get(pk=1)
 
     def test_masquerade_info(self):
         c = django.test.Client()

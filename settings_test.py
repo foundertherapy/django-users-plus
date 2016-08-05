@@ -19,6 +19,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.admin',
     'django.contrib.sessions',
+    'django_extensions',
     'localflavor',
     'accounts',
 )
@@ -31,8 +32,6 @@ DATABASES = {
 }
 
 ROOT_URLCONF = 'urls'
-
-AUTH_USER_MODEL = 'accounts.User'
 
 LOGIN_URL = 'login'
 LOGOUT_URL = 'logout'

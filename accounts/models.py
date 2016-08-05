@@ -1,6 +1,8 @@
 from __future__ import unicode_literals
 
 import logging
+import string
+import random
 
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
@@ -14,6 +16,7 @@ import django.core.urlresolvers
 import django.contrib.sites.models
 from django.conf import settings
 from django.apps import apps
+from django.utils.encoding import python_2_unicode_compatible
 
 import timezone_field
 import localflavor.us.models
@@ -21,7 +24,8 @@ import localflavor.us.models
 logger = logging.getLogger(__name__)
 
 
-class Company(django.db.models.Model):
+@python_2_unicode_compatible
+class BaseCompany(django.db.models.Model):
     created_on = django.db.models.DateTimeField(auto_now_add=True)
     updated_on = django.db.models.DateTimeField(auto_now=True)
 
@@ -32,11 +36,12 @@ class Company(django.db.models.Model):
     state = localflavor.us.models.USStateField(blank=True)
     postal_code = localflavor.us.models.USZipCodeField(blank=True)
 
-    class Meta(django.contrib.auth.models.AbstractBaseUser.Meta):
+    class Meta:
         verbose_name = _('Company')
         verbose_name_plural = _('Companies')
+        abstract = True
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_address(self):
@@ -53,6 +58,8 @@ class Company(django.db.models.Model):
 
 
 class UserManager(django.contrib.auth.models.BaseUserManager):
+    use_in_migrations = True
+
     def create_user(self, email, password, first_name, last_name, **extra_fields):
         """
         Creates and saves a User with the given email and password.
@@ -75,7 +82,8 @@ class UserManager(django.contrib.auth.models.BaseUserManager):
         return u
 
 
-class AbstractUser(django.contrib.auth.models.AbstractBaseUser, django.contrib.auth.models.PermissionsMixin):
+@python_2_unicode_compatible
+class BaseUser(django.contrib.auth.models.AbstractBaseUser, django.contrib.auth.models.PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ('first_name', 'last_name', )
 
@@ -92,37 +100,30 @@ class AbstractUser(django.contrib.auth.models.AbstractBaseUser, django.contrib.a
     email = django.db.models.EmailField(_('Email'), unique=True)
     timezone = timezone_field.TimeZoneField(default='America/New_York')
 
-    company = django.db.models.ForeignKey(Company, null=True, related_name='%(app_label)s_%(class)s_users')
-
     objects = UserManager()
 
     class Meta(django.contrib.auth.models.AbstractBaseUser.Meta):
         verbose_name = _('User')
         verbose_name_plural = _('Users')
         permissions = (
-            ('masquerade', 'Can Masquerade'),
+            ('masquerade', 'Can sign in as User'),
         )
         abstract = True
-        swappable = 'AUTH_USER_MODEL'
 
     def __init__(self, *args, **kwargs):
-        super(AbstractUser, self).__init__(*args, **kwargs)
+        super(BaseUser, self).__init__(*args, **kwargs)
         # hack the admin to change the superuser field verbose name
         superuser_field = self._meta.get_field('is_superuser')
         superuser_field.verbose_name = _('Superuser')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.get_full_name()
 
     def get_full_name(self):
         """
         Returns the first_name plus the last_name, with a space in between.
         """
-        names = [n for n in (self.first_name, self.last_name, ) if n]
-        if names:
-            return ' '.join(names)
-        else:
-            return self.email
+        return ' '.join([n for n in (self.first_name, self.last_name, ) if n] or [self.email])
 
     def get_short_name(self):
         """
@@ -136,20 +137,22 @@ class AbstractUser(django.contrib.auth.models.AbstractBaseUser, django.contrib.a
         """
         django.core.mail.send_mail(subject, message, from_email, [self.email], **kwargs)
 
+    def set_random_password(self):
+        pw = self.make_random_password()
+        self.set_password(pw)
+        return pw
 
-class User(AbstractUser):
-    pass
 
-
-class AbstractAuditLogEventBase(django.db.models.Model):
+@python_2_unicode_compatible
+class BaseAuditLogEvent(django.db.models.Model):
     created_on = django.db.models.DateTimeField(auto_now_add=True)
     updated_on = django.db.models.DateTimeField(auto_now=True)
     recorded_on = django.db.models.DateTimeField(auto_now_add=True)
 
     user_id = django.db.models.IntegerField(_('User ID'), db_index=True)
     user_email = django.db.models.EmailField(_('User Email'), db_index=True)
-    company = django.db.models.ForeignKey('accounts.Company', null=True, on_delete=django.db.models.SET_NULL,
-                                          related_name='%(app_label)s_%(class)s_users')
+    company_id = django.db.models.IntegerField(_('Company ID'), db_index=True, blank=True, null=True)
+    company_name = django.db.models.CharField(_('Company Name'), max_length=100, db_index=True, blank=True)
 
     message = django.db.models.TextField(_('Audit Message'))
     masquerading_user_id = django.db.models.IntegerField(_('Masquerading User ID'), db_index=True, blank=True, null=True)
@@ -158,19 +161,15 @@ class AbstractAuditLogEventBase(django.db.models.Model):
     class Meta:
         abstract = True
 
-    def __unicode__(self):
+    def __str__(self):
         if self.is_masquerading:
             return '{} {} [{}] {}'.format(self.recorded_on, self.user_email, self.masquerading_user_email, self.message)
         else:
             return '{} {} {}'.format(self.recorded_on, self.user_email, self.message)
 
-    def delete(self, using=None):
+    def delete(self, using=None, keep_parents=False):
         return
 
     @property
     def is_masquerading(self):
         return self.masquerading_user_id > 0
-
-
-class AuditLogEvent(AbstractAuditLogEventBase):
-    pass

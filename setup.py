@@ -9,6 +9,8 @@ from setuptools import setup, find_packages
 with open('accounts/__init__.py', 'r') as init_file:
     version = re.search('^__version__ = [\'"]([^\'"]+)[\'"]', init_file.read(), re.MULTILINE).group(1)
 
+download_url = 'https://github.com/foundertherapy/django-users-plus/archive/{}.tar.gz'.format(version)
+
 # allow setup.py to be run from any path
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
@@ -24,13 +26,14 @@ setup(
         'models and added fields to User model.'
     ),
     url='http://github.com/foundertherapy/django-users-plus/',
-    download_url='https://github.com/foundertherapy/django-users-plus/archive/1.0.2.tar.gz',
+    download_url=download_url,
     author='Dana Spiegel',
     author_email='dana@foundertherapy.co',
     install_requires=[
         'Django>=1.9',
         'django-timezone-field>=1.1',
-        'django-localflavor==1.1',
+        'django-localflavor>=1.1',
+        'swapper>=0.3.0',
     ],
     keywords=['users', 'django', 'masquerading', 'masquerade', 'impersonate', 'timezone', 'company', 'audit log'],
 )

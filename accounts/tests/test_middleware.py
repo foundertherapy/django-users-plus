@@ -6,32 +6,39 @@ import django.utils.timezone
 
 import pytz
 
-from .. import models
 from .. import middleware
+from test_models import (UnitTestCompany, UnitTestUser, )
 
 
 logging.disable(logging.CRITICAL)
 
 
+@django.test.utils.override_settings(
+    AUTH_USER_MODEL='accounts.UnitTestUser',
+    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accounts.UnitTestAuditLogEvent',
+)
 class TimezoneMiddlewareTestCase(django.test.TestCase):
-    fixtures = ('test_companies.json', )
-
-    def setUp(self):
-        self.factory = django.test.client.RequestFactory()
-        self.company = models.Company.objects.get(pk=1)
-        self.user = models.User.objects.create_user(
-            email='test@example.com', password='top_secret', first_name='test', last_name='user', company=self.company)
+    @classmethod
+    def setUpTestData(cls):
+        company = UnitTestCompany.objects.create(name='Example')
+        UnitTestCompany.objects.create(name='Other Company')
+        user = UnitTestUser.objects.create_user(email='test@example.com', password='t', first_name='f', last_name='l')
+        user.company = company
+        user.save()
 
     def test_process_request(self):
-        request = self.factory.get('/admin/')
-        request.user = self.user
+        factory = django.test.client.RequestFactory()
+        user = UnitTestUser.objects.get(pk=1)
+
+        request = factory.get('/admin/')
+        request.user = user
         tz_middleware = middleware.TimezoneMiddleware()
         tz_middleware.process_request(request)
-        self.assertEqual(django.utils.timezone.get_current_timezone(), self.user.timezone)
+        self.assertEqual(django.utils.timezone.get_current_timezone(), user.timezone)
 
         # test changing user timezone
-        self.user.timezone = pytz.timezone('Asia/Singapore')
-        self.user.save()
+        user.timezone = pytz.timezone('Asia/Singapore')
+        user.save()
 
         tz_middleware.process_request(request)
-        self.assertEqual(django.utils.timezone.get_current_timezone(), self.user.timezone)
+        self.assertEqual(django.utils.timezone.get_current_timezone(), user.timezone)

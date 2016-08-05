@@ -10,13 +10,36 @@ import accounts.models
 import accounts.signals
 
 from .. import signals, models
-
+from test_models import (UnitTestCompany, UnitTestUser, UnitTestAuditLogEvent)
 
 logging.disable(logging.CRITICAL)
 
 
+@django.test.utils.override_settings(
+    AUTH_USER_MODEL='accounts.UnitTestUser',
+    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accounts.UnitTestAuditLogEvent',
+)
 class SignalTestCase(django.test.TestCase):
-    fixtures = ('test_users.json', 'test_companies.json', )
+    @classmethod
+    def setUpTestData(cls):
+        company_1 = UnitTestCompany.objects.create(name='Example')
+        company_2 = UnitTestCompany.objects.create(name='Other Company')
+
+        superuser = UnitTestUser.objects.create_superuser(
+            email='superuser@example.com', password='password', first_name='Super', last_name='User')
+        superuser.company = company_1
+        superuser.save()
+
+        staffuser = UnitTestUser.objects.create_user(
+            email='staffuser@example.com', password='password', first_name='Staff', last_name='User')
+        staffuser.is_staff = True
+        staffuser.company = company_1
+        staffuser.save()
+
+        regular_user = UnitTestUser.objects.create_user(
+            email='regularuser@example.com', password='password', first_name='Regular', last_name='User')
+        regular_user.company = company_1
+        regular_user.save()
 
     def setUp(self):
         self.session_dict = {
@@ -37,12 +60,12 @@ class SignalTestCase(django.test.TestCase):
                     return default
             return get_item
 
-        self.user_1 = accounts.models.User.objects.get(pk=1)
-        self.user_2 = accounts.models.User.objects.get(pk=2)
-        self.user_3 = accounts.models.User.objects.get(pk=3)
+        self.user_1 = UnitTestUser.objects.get(pk=1)
+        self.user_2 = UnitTestUser.objects.get(pk=2)
+        self.user_3 = UnitTestUser.objects.get(pk=3)
 
-        self.company_1 = accounts.models.Company.objects.get(pk=1)
-        self.company_2 = accounts.models.Company.objects.get(pk=2)
+        self.company_1 = UnitTestCompany.objects.get(pk=1)
+        self.company_2 = UnitTestCompany.objects.get(pk=2)
 
         # create a mock request
         self.request = mock.MagicMock()
@@ -59,6 +82,10 @@ class SignalTestCase(django.test.TestCase):
         self.request_masquerade.user = self.user_2
 
 
+@django.test.utils.override_settings(
+    AUTH_USER_MODEL='accounts.UnitTestUser',
+    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accounts.UnitTestAuditLogEvent',
+)
 class AuditLogEventHelperCase(SignalTestCase):
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=True)
     def test_is_audit_log_enabled_true(self):
@@ -71,7 +98,7 @@ class AuditLogEventHelperCase(SignalTestCase):
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=True)
     def test_log_audit_event(self):
         signals.log_audit_event(message='Test', request=self.request, user=self.user_1)
-        audit_log_event = models.AuditLogEvent.objects.get()
+        audit_log_event = UnitTestAuditLogEvent.objects.get()
         self.assertEqual(audit_log_event.user_id, 1)
         self.assertEqual(audit_log_event.user_email, 'superuser@example.com')
         self.assertEqual(audit_log_event.company_id, 1)
@@ -82,7 +109,7 @@ class AuditLogEventHelperCase(SignalTestCase):
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=True)
     def test_log_audit_event_masquerade(self):
         signals.log_audit_event(message='Test', request=self.request_masquerade, user=self.user_2)
-        audit_log_event = models.AuditLogEvent.objects.get()
+        audit_log_event = UnitTestAuditLogEvent.objects.get()
         self.assertEqual(audit_log_event.user_id, 2)
         self.assertEqual(audit_log_event.user_email, 'staffuser@example.com')
         self.assertEqual(audit_log_event.company_id, 1)
@@ -93,19 +120,23 @@ class AuditLogEventHelperCase(SignalTestCase):
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=False)
     def test_log_audit_event_no_audit_log(self):
         signals.log_audit_event(message='Test', request=self.request, user=self.user_1)
-        self.assertEqual(0, models.AuditLogEvent.objects.count())
+        self.assertEqual(0, UnitTestAuditLogEvent.objects.count())
 
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=False)
     def test_log_audit_event_masquerade_no_audit_log(self):
         signals.log_audit_event(message='Test', request=self.request_masquerade, user=self.user_2)
-        self.assertEqual(0, models.AuditLogEvent.objects.count())
+        self.assertEqual(0, UnitTestAuditLogEvent.objects.count())
 
 
+@django.test.utils.override_settings(
+    AUTH_USER_MODEL='accounts.UnitTestUser',
+    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accounts.UnitTestAuditLogEvent',
+)
 class LoginCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=True)
     def test_login_callback(self):
         signals.login_callback(sender=self, request=self.request, user=self.user_1)
-        audit_log_event = models.AuditLogEvent.objects.get()
+        audit_log_event = UnitTestAuditLogEvent.objects.get()
         self.assertEqual(audit_log_event.user_id, 1)
         self.assertEqual(audit_log_event.user_email, 'superuser@example.com')
         self.assertEqual(audit_log_event.company_id, 1)
@@ -116,7 +147,7 @@ class LoginCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=True)
     def test_login_callback_masquerade(self):
         signals.login_callback(sender=self, request=self.request_masquerade, user=self.user_2)
-        audit_log_event = models.AuditLogEvent.objects.get()
+        audit_log_event = UnitTestAuditLogEvent.objects.get()
         self.assertEqual(audit_log_event.user_id, 2)
         self.assertEqual(audit_log_event.user_email, 'staffuser@example.com')
         self.assertEqual(audit_log_event.company_id, 1)
@@ -127,12 +158,12 @@ class LoginCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=False)
     def test_login_callback_no_audit_log(self):
         signals.login_callback(sender=self, request=self.request, user=self.user_1)
-        self.assertEqual(0, models.AuditLogEvent.objects.count())
+        self.assertEqual(0, UnitTestAuditLogEvent.objects.count())
 
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=False)
     def test_login_callback_masquerade_no_audit_log(self):
         signals.login_callback(sender=self, request=self.request_masquerade, user=self.user_2)
-        self.assertEqual(0, models.AuditLogEvent.objects.count())
+        self.assertEqual(0, UnitTestAuditLogEvent.objects.count())
 
     def test_signal_registration(self):
         import django.contrib.auth.signals
@@ -140,11 +171,15 @@ class LoginCallbackTestCase(SignalTestCase):
         self.assertIn(signals.login_callback, receivers)
 
 
+@django.test.utils.override_settings(
+    AUTH_USER_MODEL='accounts.UnitTestUser',
+    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accounts.UnitTestAuditLogEvent',
+)
 class LogoutCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=True)
     def test_logout_callback(self):
         signals.logout_callback(sender=self, request=self.request, user=self.user_1)
-        audit_log_event = models.AuditLogEvent.objects.get()
+        audit_log_event = UnitTestAuditLogEvent.objects.get()
         self.assertEqual(audit_log_event.user_id, 1)
         self.assertEqual(audit_log_event.user_email, 'superuser@example.com')
         self.assertEqual(audit_log_event.company_id, 1)
@@ -155,7 +190,7 @@ class LogoutCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=True)
     def test_logout_callback_masquerade(self):
         signals.logout_callback(sender=self, request=self.request_masquerade, user=self.user_2)
-        audit_log_event = models.AuditLogEvent.objects.get()
+        audit_log_event = UnitTestAuditLogEvent.objects.get()
         self.assertEqual(audit_log_event.user_id, 2)
         self.assertEqual(audit_log_event.user_email, 'staffuser@example.com')
         self.assertEqual(audit_log_event.company_id, 1)
@@ -166,12 +201,12 @@ class LogoutCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=False)
     def test_logout_callback_no_audit_log(self):
         signals.logout_callback(sender=self, request=self.request, user=self.user_1)
-        self.assertEqual(0, models.AuditLogEvent.objects.count())
+        self.assertEqual(0, UnitTestAuditLogEvent.objects.count())
 
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=False)
     def test_logout_callback_masquerade_no_audit_log(self):
         signals.logout_callback(sender=self, request=self.request_masquerade, user=self.user_2)
-        self.assertEqual(0, models.AuditLogEvent.objects.count())
+        self.assertEqual(0, UnitTestAuditLogEvent.objects.count())
 
     def test_signal_registration(self):
         import django.contrib.auth.signals
@@ -179,11 +214,15 @@ class LogoutCallbackTestCase(SignalTestCase):
         self.assertIn(signals.logout_callback, receivers)
 
 
+@django.test.utils.override_settings(
+    AUTH_USER_MODEL='accounts.UnitTestUser',
+    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accounts.UnitTestAuditLogEvent',
+)
 class MasqueradeStartCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=True)
     def test_masquerade_start_callback(self):
         signals.masquerade_start_callback(sender=self, request=self.request, user=self.user_1, masquerade_as=self.user_2)
-        audit_log_event = models.AuditLogEvent.objects.get()
+        audit_log_event = UnitTestAuditLogEvent.objects.get()
         self.assertEqual(audit_log_event.user_id, 1)
         self.assertEqual(audit_log_event.user_email, 'superuser@example.com')
         self.assertEqual(audit_log_event.company_id, 1)
@@ -194,18 +233,22 @@ class MasqueradeStartCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=False)
     def test_masquerade_start_callback_no_audit_log(self):
         signals.masquerade_start_callback(sender=self, request=self.request, user=self.user_1, masquerade_as=self.user_2)
-        self.assertEqual(0, models.AuditLogEvent.objects.count())
+        self.assertEqual(0, UnitTestAuditLogEvent.objects.count())
 
     def test_signal_registration(self):
         receivers = accounts.signals.masquerade_start._live_receivers(self)
         self.assertIn(signals.masquerade_start_callback, receivers)
 
 
+@django.test.utils.override_settings(
+    AUTH_USER_MODEL='accounts.UnitTestUser',
+    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accounts.UnitTestAuditLogEvent',
+)
 class MasqueradeEndCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=True)
     def test_masquerade_end_callback(self):
         signals.masquerade_end_callback(sender=self, request=self.request, user=self.user_1, masquerade_as=self.user_2)
-        audit_log_event = models.AuditLogEvent.objects.get()
+        audit_log_event = UnitTestAuditLogEvent.objects.get()
         self.assertEqual(audit_log_event.user_id, 1)
         self.assertEqual(audit_log_event.user_email, 'superuser@example.com')
         self.assertEqual(audit_log_event.company_id, 1)
@@ -216,18 +259,22 @@ class MasqueradeEndCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=False)
     def test_masquerade_end_callback_no_audit_log(self):
         signals.masquerade_end_callback(sender=self, request=self.request, user=self.user_1, masquerade_as=self.user_2)
-        self.assertEqual(0, models.AuditLogEvent.objects.count())
+        self.assertEqual(0, UnitTestAuditLogEvent.objects.count())
 
     def test_signal_registration(self):
         receivers = accounts.signals.masquerade_end._live_receivers(self)
         self.assertIn(signals.masquerade_end_callback, receivers)
 
 
+@django.test.utils.override_settings(
+    AUTH_USER_MODEL='accounts.UnitTestUser',
+    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accounts.UnitTestAuditLogEvent',
+)
 class PasswordResetCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=True)
     def test_password_reset_callback(self):
         signals.password_reset_request_callback(sender=self, request=self.request, user=self.user_1)
-        audit_log_event = models.AuditLogEvent.objects.get()
+        audit_log_event = UnitTestAuditLogEvent.objects.get()
         self.assertEqual(audit_log_event.user_id, 1)
         self.assertEqual(audit_log_event.user_email, 'superuser@example.com')
         self.assertEqual(audit_log_event.company_id, 1)
@@ -238,7 +285,7 @@ class PasswordResetCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=True)
     def test_password_reset_callback_masquerade(self):
         signals.password_reset_request_callback(sender=self, request=self.request_masquerade, user=self.user_2)
-        audit_log_event = models.AuditLogEvent.objects.get()
+        audit_log_event = UnitTestAuditLogEvent.objects.get()
         self.assertEqual(audit_log_event.user_id, 2)
         self.assertEqual(audit_log_event.user_email, 'staffuser@example.com')
         self.assertEqual(audit_log_event.company_id, 1)
@@ -249,23 +296,27 @@ class PasswordResetCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=False)
     def test_password_reset_callback_no_audit_log(self):
         signals.password_reset_request_callback(sender=self, request=self.request, user=self.user_1)
-        self.assertEqual(0, models.AuditLogEvent.objects.count())
+        self.assertEqual(0, UnitTestAuditLogEvent.objects.count())
 
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=False)
     def test_password_reset_callback_masquerade_no_audit_log(self):
         signals.password_reset_request_callback(sender=self, request=self.request_masquerade, user=self.user_2)
-        self.assertEqual(0, models.AuditLogEvent.objects.count())
+        self.assertEqual(0, UnitTestAuditLogEvent.objects.count())
 
     def test_signal_registration(self):
         receivers = accounts.signals.user_password_reset_request._live_receivers(self)
         self.assertIn(signals.password_reset_request_callback, receivers)
 
 
+@django.test.utils.override_settings(
+    AUTH_USER_MODEL='accounts.UnitTestUser',
+    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accounts.UnitTestAuditLogEvent',
+)
 class PasswordChangeCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=True)
     def test_password_change_callback(self):
         signals.password_change_callback(sender=self, request=self.request, user=self.user_1)
-        audit_log_event = models.AuditLogEvent.objects.get()
+        audit_log_event = UnitTestAuditLogEvent.objects.get()
         self.assertEqual(audit_log_event.user_id, 1)
         self.assertEqual(audit_log_event.user_email, 'superuser@example.com')
         self.assertEqual(audit_log_event.company_id, 1)
@@ -276,7 +327,7 @@ class PasswordChangeCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=True)
     def test_password_change_callback_masquerade(self):
         signals.password_change_callback(sender=self, request=self.request_masquerade, user=self.user_2)
-        audit_log_event = models.AuditLogEvent.objects.get()
+        audit_log_event = UnitTestAuditLogEvent.objects.get()
         self.assertEqual(audit_log_event.user_id, 2)
         self.assertEqual(audit_log_event.user_email, 'staffuser@example.com')
         self.assertEqual(audit_log_event.company_id, 1)
@@ -287,23 +338,27 @@ class PasswordChangeCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=False)
     def test_password_change_callback_no_audit_log(self):
         signals.password_change_callback(sender=self, request=self.request, user=self.user_1)
-        self.assertEqual(0, models.AuditLogEvent.objects.count())
+        self.assertEqual(0, UnitTestAuditLogEvent.objects.count())
 
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=False)
     def test_password_change_callback_masquerade_no_audit_log(self):
         signals.password_change_callback(sender=self, request=self.request_masquerade, user=self.user_2)
-        self.assertEqual(0, models.AuditLogEvent.objects.count())
+        self.assertEqual(0, UnitTestAuditLogEvent.objects.count())
 
     def test_signal_registration(self):
         receivers = accounts.signals.user_password_change._live_receivers(self)
         self.assertIn(signals.password_change_callback, receivers)
 
 
+@django.test.utils.override_settings(
+    AUTH_USER_MODEL='accounts.UnitTestUser',
+    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accounts.UnitTestAuditLogEvent',
+)
 class CreateCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=True)
     def test_create_callback(self):
         signals.create_callback(sender=self, request=self.request, user=self.user_3)
-        audit_log_event = models.AuditLogEvent.objects.get()
+        audit_log_event = UnitTestAuditLogEvent.objects.get()
         self.assertEqual(audit_log_event.user_id, 3)
         self.assertEqual(audit_log_event.user_email, 'regularuser@example.com')
         self.assertEqual(audit_log_event.company_id, 1)
@@ -314,7 +369,7 @@ class CreateCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=True)
     def test_create_callback_masquerade(self):
         signals.create_callback(sender=self, request=self.request_masquerade, user=self.user_3)
-        audit_log_event = models.AuditLogEvent.objects.get()
+        audit_log_event = UnitTestAuditLogEvent.objects.get()
         self.assertEqual(audit_log_event.user_id, 3)
         self.assertEqual(audit_log_event.user_email, 'regularuser@example.com')
         self.assertEqual(audit_log_event.company_id, 1)
@@ -325,25 +380,29 @@ class CreateCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=False)
     def test_create_callback_no_audit_log(self):
         signals.create_callback(sender=self, request=self.request, user=self.user_3)
-        self.assertEqual(0, models.AuditLogEvent.objects.count())
+        self.assertEqual(0, UnitTestAuditLogEvent.objects.count())
 
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=False)
     def test_create_callback_masquerade_no_audit_log(self):
         signals.create_callback(sender=self, request=self.request_masquerade, user=self.user_3)
-        self.assertEqual(0, models.AuditLogEvent.objects.count())
+        self.assertEqual(0, UnitTestAuditLogEvent.objects.count())
 
     def test_signal_registration(self):
         receivers = accounts.signals.user_create._live_receivers(self)
         self.assertIn(signals.create_callback, receivers)
 
 
+@django.test.utils.override_settings(
+    AUTH_USER_MODEL='accounts.UnitTestUser',
+    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accounts.UnitTestAuditLogEvent',
+)
 class EmailChangeCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=True)
     def test_email_change_callback(self):
         signals.email_change_callback(
             sender=self, request=self.request, user=self.user_3, old_email='regularuser@example.com',
             new_email='change@example.com')
-        audit_log_event = models.AuditLogEvent.objects.get()
+        audit_log_event = UnitTestAuditLogEvent.objects.get()
         self.assertEqual(audit_log_event.user_id, 3)
         self.assertEqual(audit_log_event.user_email, 'regularuser@example.com')
         self.assertEqual(audit_log_event.company_id, 1)
@@ -356,7 +415,7 @@ class EmailChangeCallbackTestCase(SignalTestCase):
         signals.email_change_callback(
             sender=self, request=self.request_masquerade, user=self.user_3, old_email='regularuser@example.com',
             new_email='change@example.com')
-        audit_log_event = models.AuditLogEvent.objects.get()
+        audit_log_event = UnitTestAuditLogEvent.objects.get()
         self.assertEqual(audit_log_event.user_id, 3)
         self.assertEqual(audit_log_event.user_email, 'regularuser@example.com')
         self.assertEqual(audit_log_event.company_id, 1)
@@ -369,25 +428,29 @@ class EmailChangeCallbackTestCase(SignalTestCase):
         signals.email_change_callback(
             sender=self, request=self.request, user=self.user_3, old_email='regularuser@example.com',
             new_email='change@example.com')
-        self.assertEqual(0, models.AuditLogEvent.objects.count())
+        self.assertEqual(0, UnitTestAuditLogEvent.objects.count())
 
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=False)
     def test_email_change_callback_masquerade_no_audit_log(self):
         signals.email_change_callback(
             sender=self, request=self.request_masquerade, user=self.user_3, old_email='regularuser@example.com',
             new_email='change@example.com')
-        self.assertEqual(0, models.AuditLogEvent.objects.count())
+        self.assertEqual(0, UnitTestAuditLogEvent.objects.count())
 
     def test_signal_registration(self):
         receivers = accounts.signals.user_email_change._live_receivers(self)
         self.assertIn(signals.email_change_callback, receivers)
 
 
+@django.test.utils.override_settings(
+    AUTH_USER_MODEL='accounts.UnitTestUser',
+    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accounts.UnitTestAuditLogEvent',
+)
 class DeactivateCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=True)
     def test_deactivate_callback(self):
         signals.deactivate_callback(sender=self, request=self.request, user=self.user_3)
-        audit_log_event = models.AuditLogEvent.objects.get()
+        audit_log_event = UnitTestAuditLogEvent.objects.get()
         self.assertEqual(audit_log_event.user_id, 3)
         self.assertEqual(audit_log_event.user_email, 'regularuser@example.com')
         self.assertEqual(audit_log_event.company_id, 1)
@@ -398,7 +461,7 @@ class DeactivateCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=True)
     def test_deactivate_callback_masquerade(self):
         signals.deactivate_callback(sender=self, request=self.request_masquerade, user=self.user_3)
-        audit_log_event = models.AuditLogEvent.objects.get()
+        audit_log_event = UnitTestAuditLogEvent.objects.get()
         self.assertEqual(audit_log_event.user_id, 3)
         self.assertEqual(audit_log_event.user_email, 'regularuser@example.com')
         self.assertEqual(audit_log_event.company_id, 1)
@@ -409,23 +472,27 @@ class DeactivateCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=False)
     def test_deactivate_callback_no_audit_log(self):
         signals.deactivate_callback(sender=self, request=self.request, user=self.user_3)
-        self.assertEqual(0, models.AuditLogEvent.objects.count())
+        self.assertEqual(0, UnitTestAuditLogEvent.objects.count())
 
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=False)
     def test_deactivate_callback_masquerade_no_audit_log(self):
         signals.deactivate_callback(sender=self, request=self.request_masquerade, user=self.user_3)
-        self.assertEqual(0, models.AuditLogEvent.objects.count())
+        self.assertEqual(0, UnitTestAuditLogEvent.objects.count())
 
     def test_signal_registration(self):
         receivers = accounts.signals.user_deactivate._live_receivers(self)
         self.assertIn(signals.deactivate_callback, receivers)
 
 
+@django.test.utils.override_settings(
+    AUTH_USER_MODEL='accounts.UnitTestUser',
+    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accounts.UnitTestAuditLogEvent',
+)
 class ActivateCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=True)
     def test_activate_callback(self):
         signals.activate_callback(sender=self, request=self.request, user=self.user_3)
-        audit_log_event = models.AuditLogEvent.objects.get()
+        audit_log_event = UnitTestAuditLogEvent.objects.get()
         self.assertEqual(audit_log_event.user_id, 3)
         self.assertEqual(audit_log_event.user_email, 'regularuser@example.com')
         self.assertEqual(audit_log_event.company_id, 1)
@@ -436,7 +503,7 @@ class ActivateCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=True)
     def test_activate_callback_masquerade(self):
         signals.activate_callback(sender=self, request=self.request_masquerade, user=self.user_3)
-        audit_log_event = models.AuditLogEvent.objects.get()
+        audit_log_event = UnitTestAuditLogEvent.objects.get()
         self.assertEqual(audit_log_event.user_id, 3)
         self.assertEqual(audit_log_event.user_email, 'regularuser@example.com')
         self.assertEqual(audit_log_event.company_id, 1)
@@ -447,24 +514,28 @@ class ActivateCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=False)
     def test_activate_callback_no_audit_log(self):
         signals.activate_callback(sender=self, request=self.request, user=self.user_3)
-        self.assertEqual(0, models.AuditLogEvent.objects.count())
+        self.assertEqual(0, UnitTestAuditLogEvent.objects.count())
 
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=False)
     def test_activate_callback_masquerade_no_audit_log(self):
         signals.activate_callback(sender=self, request=self.request_masquerade, user=self.user_3)
-        self.assertEqual(0, models.AuditLogEvent.objects.count())
+        self.assertEqual(0, UnitTestAuditLogEvent.objects.count())
 
     def test_signal_registration(self):
         receivers = accounts.signals.user_activate._live_receivers(self)
         self.assertIn(signals.activate_callback, receivers)
 
 
+@django.test.utils.override_settings(
+    AUTH_USER_MODEL='accounts.UnitTestUser',
+    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accounts.UnitTestAuditLogEvent',
+)
 class CompanyNameChangeCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=True)
     def test_company_name_change_callback(self):
         signals.company_name_change_callback(
             sender=self, request=self.request, user=self.user_3, company=self.company_2, old_name='Old Name', new_name='New Name')
-        audit_log_event = models.AuditLogEvent.objects.get()
+        audit_log_event = UnitTestAuditLogEvent.objects.get()
         self.assertEqual(audit_log_event.user_id, 3)
         self.assertEqual(audit_log_event.user_email, 'regularuser@example.com')
         self.assertEqual(audit_log_event.company_id, 1)
@@ -477,7 +548,7 @@ class CompanyNameChangeCallbackTestCase(SignalTestCase):
         signals.company_name_change_callback(
             sender=self, request=self.request_masquerade, user=self.user_3, company=self.company_2, old_name='Old Name',
             new_name='New Name')
-        audit_log_event = models.AuditLogEvent.objects.get()
+        audit_log_event = UnitTestAuditLogEvent.objects.get()
         self.assertEqual(audit_log_event.user_id, 3)
         self.assertEqual(audit_log_event.user_email, 'regularuser@example.com')
         self.assertEqual(audit_log_event.company_id, 1)
@@ -489,14 +560,14 @@ class CompanyNameChangeCallbackTestCase(SignalTestCase):
     def test_company_name_change_callback_no_audit_log(self):
         signals.company_name_change_callback(
             sender=self, request=self.request, user=self.user_3, company=self.company_2, old_name='Old Name', new_name='New Name')
-        self.assertEqual(0, models.AuditLogEvent.objects.count())
+        self.assertEqual(0, UnitTestAuditLogEvent.objects.count())
 
     @django.test.utils.override_settings(ENABLE_AUDIT_LOG=False)
     def test_company_name_change_callback_masquerade_no_audit_log(self):
         signals.company_name_change_callback(
             sender=self, request=self.request_masquerade, user=self.user_3, company=self.company_2, old_name='Old Name',
             new_name='New Name')
-        self.assertEqual(0, models.AuditLogEvent.objects.count())
+        self.assertEqual(0, UnitTestAuditLogEvent.objects.count())
 
     def test_signal_registration(self):
         receivers = accounts.signals.company_name_change._live_receivers(self)

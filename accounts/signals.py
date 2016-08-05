@@ -5,15 +5,17 @@ from django.dispatch import receiver, Signal
 from django.conf import settings
 from django.apps import apps
 
-import models
-
 
 def is_audit_log_enabled():
     return getattr(settings, 'ENABLE_AUDIT_LOG', False)
 
 
+def is_audit_log_configured():
+    return hasattr(settings, 'ACCOUNTS_AUDIT_LOG_EVENT_MODEL')
+
+
 def log_audit_event(message, **kwargs):
-    if is_audit_log_enabled():
+    if is_audit_log_enabled() and is_audit_log_configured():
         user = kwargs['user']
         request = kwargs['request']
         is_masquerading = request.session.get('is_masquerading', False)
@@ -21,15 +23,24 @@ def log_audit_event(message, **kwargs):
         if not user:
             return
 
-        if hasattr(settings, 'AUDIT_LOG_EVENT_MODEL'):
-            model = apps.get_model(settings.AUDIT_LOG_EVENT_MODEL)
-        else:
-            model = models.AuditLogEvent
+        model = apps.get_model(settings.ACCOUNTS_AUDIT_LOG_EVENT_MODEL)
 
-        e = model(user_id=user.id, user_email=user.email, company=user.company, message=message)
+        data = {
+            'user_id': user.id,
+            'user_email': user.email,
+            'message': message,
+        }
+
+        if hasattr(user, 'company'):
+            company = user.company
+            if company:
+                data['company_id'] = company.id
+                data['company_name'] = company.name
+
+        e = model(**data)
 
         if is_masquerading:
-            masquerading_user = models.User.objects.get(pk=request.session['masquerade_user_id'])
+            masquerading_user = django.contrib.auth.get_user_model().objects.get(pk=request.session['masquerade_user_id'])
             e.masquerading_user_id = masquerading_user.id
             e.masquerading_user_email = masquerading_user.email
 
