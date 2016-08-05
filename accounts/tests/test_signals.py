@@ -95,7 +95,7 @@ class AuditLogEventHelperCase(SignalTestCase):
     def test_is_audit_log_enabled_false(self):
         self.assertFalse(signals.is_audit_log_enabled())
 
-    @django.test.utils.override_settings(ACCOUNTS_ENABLE_AUDIT_LOG=sTrue)
+    @django.test.utils.override_settings(ACCOUNTS_ENABLE_AUDIT_LOG=True)
     def test_log_audit_event(self):
         signals.log_audit_event(message='Test', request=self.request, user=self.user_1)
         audit_log_event = UnitTestAuditLogEvent.objects.get()
