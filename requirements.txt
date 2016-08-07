@@ -1,5 +1,5 @@
 setuptools
-Django
+Django==1.9.9
 flake8
 pep8
 pyflakes
