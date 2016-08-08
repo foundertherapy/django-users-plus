@@ -16,13 +16,9 @@ import django.utils.module_loading
 
 import django.core.urlresolvers
 
-import models
 import signals
 
 logger = logging.getLogger(__name__)
-
-
-from django.views.generic.edit import FormView
 
 
 def logout_then_login(request, login_url=None,  extra_context=None):
@@ -43,36 +39,32 @@ def masquerade(request, user_id=None):
 
     return_page = request.META.get('HTTP_REFERER') or 'admin:index'
     if not user_id:
-        django.contrib.messages.error(
-            request, 'Masquerade failed: no user specified')
+        django.contrib.messages.error(request, 'Masquerade failed: no user specified')
         return django.shortcuts.redirect(return_page)
     if not request.user.has_perm(User.PERMISSION_MASQUERADE):
-        django.contrib.messages.error(
-            request, 'Masquerade failed: insufficient privileges')
+        django.contrib.messages.error(request, 'Masquerade failed: insufficient privileges')
+        return django.shortcuts.redirect(return_page)
+    if not (request.user.is_superuser or request.user.is_staff):
+        django.contrib.messages.error(request, 'Masquerade failed: must be staff or superuser')
         return django.shortcuts.redirect(return_page)
 
     try:
         user = User.objects.get(pk=user_id)
     except User.DoesNotExist:
-        logger.error('User {} ({}) masquerading failed for user {}'.format(
-            request.user.email, request.user.id, user_id))
-        django.contrib.messages.error(
-            request, 'Masquerade failed: unknown user {}'.format(user_id))
+        logger.error('User {} ({}) masquerading failed for user {}'.format(request.user.email, request.user.id, user_id))
+        django.contrib.messages.error(request, 'Masquerade failed: unknown user {}'.format(user_id))
         return django.shortcuts.redirect(return_page)
 
     if user.is_superuser:
         logger.warning(
-            'User {} ({}) cannot masquerade as superuser {} ({})'.format(
-                request.user.email, request.user.id, user.email, user.id))
-        django.contrib.messages.warning(
-            request, 'Cannot masquerade as a superuser')
+            'User {} ({}) cannot masquerade as superuser {} ({})'.format(request.user.email, request.user.id, user.email, user.id))
+        django.contrib.messages.warning(request, 'Cannot masquerade as a superuser')
         return django.shortcuts.redirect(return_page)
 
     admin_user = request.user
     user.backend = request.session[django.contrib.auth.BACKEND_SESSION_KEY]
     # log the new user in
-    signals.masquerade_start.send(
-        sender=masquerade, request=request, user=admin_user, masquerade_as=user)
+    signals.masquerade_start.send(sender=masquerade, request=request, user=admin_user, masquerade_as=user)
     # this is needed to track whether this login is for a masquerade
     setattr(user, 'is_masquerading', True)
     setattr(user, 'masquerading_user', admin_user)
@@ -84,11 +76,8 @@ def masquerade(request, user_id=None):
     request.session['masquerade_is_superuser'] = admin_user.is_superuser
 
     logger.info(
-        'User {} ({}) masquerading as {} ({})'.format(
-            admin_user.email, admin_user.id,
-            request.user.email, request.user.id))
-    django.contrib.messages.success(
-        request, 'Masquerading as user {0}'.format(user.email))
+        'User {} ({}) masquerading as {} ({})'.format(admin_user.email, admin_user.id, request.user.email, request.user.id))
+    django.contrib.messages.success(request, 'Masquerading as user {0}'.format(user.email))
 
     return django.shortcuts.redirect('admin:index')
 

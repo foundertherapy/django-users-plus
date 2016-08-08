@@ -39,7 +39,7 @@ class UserManagerTestCase(django.test.TestCase):
         self.company = UnitTestCompany.objects.get(pk=1)
 
     def test_create_user(self):
-        UnitTestUser.objects.create_user('a@example.com', 'a', 'Joe', 'User', company=self.company)
+        UnitTestUser.objects.create_user('a@example.com', 'a', first_name='Joe', last_name='User', company=self.company)
         u = UnitTestUser.objects.get(email='a@example.com')
         assert u
         self.assertEqual(u.first_name, 'Joe')
@@ -51,7 +51,7 @@ class UserManagerTestCase(django.test.TestCase):
         self.assertEqual(u.get_short_name(), 'Joe')
 
     def test_create_superuser(self):
-        UnitTestUser.objects.create_superuser('a@example.com', 'a', 'Joe', 'Superuser', company=self.company)
+        UnitTestUser.objects.create_superuser('a@example.com', 'a', first_name='Joe', last_name='Superuser', company=self.company)
         u = UnitTestUser.objects.get(email='a@example.com')
         assert u
         self.assertEqual(u.first_name, 'Joe')

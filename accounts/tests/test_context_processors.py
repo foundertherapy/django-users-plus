@@ -26,8 +26,7 @@ class ContextProcessorTestCase(django.test.TestCase):
         superuser.save()
 
         staffuser = UnitTestUser.objects.create_user(
-            email='staffuser@example.com', password='password', first_name='Staff', last_name='User')
-        staffuser.is_staff = True
+            email='staffuser@example.com', password='password', first_name='Staff', last_name='User', is_staff=True)
         staffuser.company = company_1
         staffuser.save()
 

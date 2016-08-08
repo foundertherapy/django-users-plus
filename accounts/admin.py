@@ -95,15 +95,13 @@ class BaseUserAdmin(django.contrib.auth.admin.UserAdmin):
     )
     add_fieldsets = (
         (None, {
-            'fields': ('email', 'password1', 'password2', 'first_name',
-                       'last_name', ),
+            'fields': ('email', 'password1', 'password2', 'first_name', 'last_name', ),
         }),
         ('Preferences', {
             'fields': ('timezone', ),
         }),
         ('Security', {
-            'fields': ('is_active', 'is_superuser', 'is_staff', 'groups',
-                       'user_permissions', ),
+            'fields': ('is_active', 'is_superuser', 'is_staff', 'groups', 'user_permissions', ),
         }),
     )
     search_fields = ('email', 'first_name', 'last_name', )

@@ -1,21 +1,17 @@
 from __future__ import unicode_literals
 
 import logging
-import string
-import random
 
-from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 import django.core.mail
 import django.contrib.auth.models
+import django.contrib.auth.base_user
 import django.db.models
 import django.db.models.signals
 import django.utils.timezone
 import django.core.validators
 import django.core.urlresolvers
 import django.contrib.sites.models
-from django.conf import settings
-from django.apps import apps
 from django.utils.encoding import python_2_unicode_compatible
 
 import timezone_field
@@ -57,33 +53,40 @@ class BaseCompany(django.db.models.Model):
         return address
 
 
-class UserManager(django.contrib.auth.models.BaseUserManager):
+class UserManager(django.contrib.auth.base_user.BaseUserManager):
     use_in_migrations = True
 
-    def create_user(self, email, password, first_name, last_name, **extra_fields):
+    def _create_user(self, email, password, **extra_fields):
         """
-        Creates and saves a User with the given email and password.
+        Creates and saves a User with the given username, email and password.
         """
-        email = UserManager.normalize_email(email)
-        user = apps.get_model(settings.AUTH_USER_MODEL)(
-            email=email, first_name=first_name, last_name=last_name,
-            is_staff=False, is_active=True, is_superuser=False, **extra_fields)
+        if not email:
+            raise ValueError('The given username must be set')
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
         user.set_password(password)
-        user.last_login = timezone.now()
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, password, first_name, last_name, **extra_fields):
-        u = self.create_user(email, password, first_name, last_name, **extra_fields)
-        u.is_staff = True
-        u.is_active = True
-        u.is_superuser = True
-        u.save(using=self._db)
-        return u
+    def create_user(self, email=None, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', False)
+        extra_fields.setdefault('is_superuser', False)
+        return self._create_user(email, password, **extra_fields)
+
+    def create_superuser(self, email, password, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self._create_user(email, password, **extra_fields)
 
 
 @python_2_unicode_compatible
-class BaseUser(django.contrib.auth.models.AbstractBaseUser, django.contrib.auth.models.PermissionsMixin):
+class BaseUser(django.contrib.auth.base_user.AbstractBaseUser, django.contrib.auth.models.PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ('first_name', 'last_name', )
 
@@ -93,7 +96,7 @@ class BaseUser(django.contrib.auth.models.AbstractBaseUser, django.contrib.auth.
     updated_on = django.db.models.DateTimeField(auto_now=True)
 
     is_active = django.db.models.BooleanField(_('Active'), default=True)
-    is_staff = django.db.models.BooleanField(_('Staff'), default=False)
+    is_staff = django.db.models.BooleanField(_('Admin'), default=False)
 
     first_name = django.db.models.CharField(_('First Name'), max_length=50)
     last_name = django.db.models.CharField(_('Last Name'), max_length=50)
