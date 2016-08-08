@@ -79,15 +79,13 @@ class BaseUserAdmin(django.contrib.auth.admin.UserAdmin):
                     'is_active', 'is_superuser', 'is_staff', 'get_timezone', 'last_login', )
     fieldsets = (
         (None, {
-            'fields': ('email', 'password', 'first_name', 'last_name',
-                       ),
+            'fields': ('email', 'password', 'first_name', 'last_name', ),
         }),
         ('Preferences', {
             'fields': ('timezone', ),
         }),
         ('Security', {
-            'fields': ('is_active', 'is_superuser', 'is_staff', 'groups',
-                       'user_permissions', ),
+            'fields': ('is_active', 'is_superuser', 'is_staff', 'groups', 'user_permissions', ),
         }),
         ('Important dates', {
             'fields': ('last_login', 'created_on', 'updated_on', ),
@@ -95,7 +93,7 @@ class BaseUserAdmin(django.contrib.auth.admin.UserAdmin):
     )
     add_fieldsets = (
         (None, {
-            'fields': ('email', 'password1', 'password2', 'first_name', 'last_name', ),
+            'fields': ('email', 'first_name', 'last_name', ),
         }),
         ('Preferences', {
             'fields': ('timezone', ),

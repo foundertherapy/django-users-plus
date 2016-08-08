@@ -141,7 +141,7 @@ class BaseUser(django.contrib.auth.base_user.AbstractBaseUser, django.contrib.au
         django.core.mail.send_mail(subject, message, from_email, [self.email], **kwargs)
 
     def set_random_password(self):
-        pw = self.make_random_password()
+        pw = UserManager.make_random_password()
         self.set_password(pw)
         return pw
 
