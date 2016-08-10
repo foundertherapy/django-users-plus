@@ -19,6 +19,7 @@ import django.views.decorators.debug
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from django.apps import apps
+from django.contrib.auth import password_validation
 
 import signals
 import models
@@ -57,6 +58,7 @@ class UserCreationForm(django.forms.ModelForm):
                 self.error_messages['password_mismatch'],
                 code='password_mismatch',
             )
+        password_validation.validate_password(password2, self.user)
         return password2
 
     def save(self, commit=True):
