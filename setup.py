@@ -31,7 +31,7 @@ setup(
     author_email='dana@foundertherapy.co',
     install_requires=[
         'Django>=1.9',
-        'django-timezone-field>=1.1',
+        'django-timezone-field>=2.0rc1',
         'django-localflavor>=1.1',
         'swapper>=0.3.0',
     ],

@@ -3,7 +3,7 @@ Django==1.10
 flake8
 pep8
 pyflakes
-git+https://github.com/mfogel/django-timezone-field.git@master
+django-timezone-field>=2.0rc1
 django-localflavor
 bcrypt
 mock
