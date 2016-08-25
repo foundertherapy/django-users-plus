@@ -1,9 +1,9 @@
 setuptools
-Django<1.10
+Django==1.10
 flake8
 pep8
 pyflakes
-django-timezone-field
+git+https://github.com/mfogel/django-timezone-field.git@master
 django-localflavor
 bcrypt
 mock
