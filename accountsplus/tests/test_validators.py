@@ -26,4 +26,4 @@ class PasswordValidatorTestCase(TestCase):
         self.assertFalse(self.validate_password('aab1234$$$$'))
 
     def test_good_password(self):
-        self.assertTrue(self.validate_password('aab1234AAAA$'))
+        self.assertTrue(self.validate_password('aab1234AAAA$#'))
