@@ -149,8 +149,7 @@ def password_change(request,
     }
     if extra_context is not None:
         context.update(extra_context)
-    return django.template.response.TemplateResponse(
-        request, template_name, context, current_app=current_app)
+    return django.template.response.TemplateResponse(request, template_name, context)
 
 
 @django.views.decorators.csrf.csrf_protect

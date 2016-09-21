@@ -1,9 +1,9 @@
 setuptools
-Django==1.10
+Django==1.10.1
 flake8
 pep8
 pyflakes
 django-timezone-field>=2.0rc1
 django-localflavor
 bcrypt
-mock
+mock==0.4.25

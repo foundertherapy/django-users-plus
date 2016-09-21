@@ -10,7 +10,7 @@ import django.db.models
 import django.db.models.signals
 import django.utils.timezone
 import django.core.validators
-import django.core.urlresolvers
+import django.urls
 import django.contrib.sites.models
 from django.utils.encoding import python_2_unicode_compatible
 

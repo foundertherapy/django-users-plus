@@ -14,7 +14,7 @@ import django.contrib.auth.admin
 import django.utils.html
 import django.template.response
 import django.utils.decorators
-import django.core.urlresolvers
+import django.urls
 import django.views.decorators.debug
 from django.utils.translation import ugettext_lazy as _
 from django.contrib import messages
@@ -188,7 +188,7 @@ class BaseUserAdmin(django.contrib.auth.admin.UserAdmin):
         return unicode(obj.timezone)
 
     def masquerade(self, obj):
-        return '<a href="{}">sign in</a>'.format(django.core.urlresolvers.reverse('masquerade', kwargs={'user_id': obj.id}))
+        return '<a href="{}">sign in</a>'.format(django.urls.reverse('masquerade', kwargs={'user_id': obj.id}))
     masquerade.short_description = 'Sign in'
     masquerade.allow_tags = True
 
@@ -347,9 +347,9 @@ class LogEntryAdmin(django.contrib.admin.ModelAdmin):
         ct = obj.content_type
         repr_ = django.utils.html.escape(obj.object_repr)
         try:
-            href = django.core.urlresolvers.reverse('admin:{}_{}_change'.format(ct.app_label, ct.model), args=[obj.object_id])
+            href = django.urls.reverse('admin:{}_{}_change'.format(ct.app_label, ct.model), args=[obj.object_id])
             link = '<a href="{}">{}</a>'.format(href, repr_)
-        except django.core.urlresolvers.NoReverseMatch:
+        except django.urls.NoReverseMatch:
             link = repr_
         return link if obj.action_flag != django.contrib.admin.models.DELETION else repr_
     object_link.allow_tags = True

@@ -63,9 +63,9 @@ Quick start
 
     url(r'^', include('accounts.urls')),
 
-6. To enable timezone support for users in the Admin site, add the following to MIDDLEWARE_CLASSES::
+6. To enable timezone support for users in the Admin site, add the following to MIDDLEWARE::
 
-    MIDDLEWARE_CLASSES = (
+    MIDDLEWARE = (
         ...
         'accounts.middleware.TimezoneMiddleware',
     )

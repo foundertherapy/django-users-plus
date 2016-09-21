@@ -4,7 +4,7 @@ import django.test
 import django.shortcuts
 import django.conf.urls
 import django.contrib.admin
-import django.core.urlresolvers
+import django.urls
 
 import logging
 
@@ -12,11 +12,11 @@ import logging
 logging.disable(logging.CRITICAL)
 
 
-urlpatterns = django.conf.urls.patterns(
+urlpatterns = [
     '',
     django.conf.urls.url(r'^', django.conf.urls.include('accounts.urls')),
     django.conf.urls.url(r'^admin/', django.conf.urls.include(django.contrib.admin.site.urls)),
-)
+]
 
 
 class UrlsTestCase(django.test.SimpleTestCase):
@@ -32,8 +32,8 @@ class UrlsTestCase(django.test.SimpleTestCase):
 
     def test_password_reset_urls(self):
         self.assertEqual(django.shortcuts.resolve_url('admin_password_reset'), '/password_reset/')
-        self.assertEqual(django.shortcuts.resolve_url('django.contrib.auth.views.password_reset_done'), '/password_reset/done/')
-        self.assertEqual(django.shortcuts.resolve_url('django.contrib.auth.views.password_reset_complete'), '/reset/done/')
+        self.assertEqual(django.shortcuts.resolve_url('password_reset_done'), '/password_reset/done/')
+        self.assertEqual(django.shortcuts.resolve_url('password_reset_complete'), '/reset/done/')
 
     def test_masquerade_urls(self):
         self.assertEqual(django.shortcuts.resolve_url('end_masquerade'), '/admin/masquerade/end/')

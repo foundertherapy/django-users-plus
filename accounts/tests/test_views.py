@@ -16,7 +16,7 @@ import test_admin
 logging.disable(logging.CRITICAL)
 
 
-MIDDLEWARE_CLASSES_NO_DEBUG_TOOLBAR = list(settings.MIDDLEWARE_CLASSES)
+MIDDLEWARE_CLASSES_NO_DEBUG_TOOLBAR = list(settings.MIDDLEWARE)
 if 'debug_toolbar.middleware.DebugToolbarMiddleware' in MIDDLEWARE_CLASSES_NO_DEBUG_TOOLBAR:
     MIDDLEWARE_CLASSES_NO_DEBUG_TOOLBAR.remove('debug_toolbar.middleware.DebugToolbarMiddleware')
 INSTALLED_APPS_NO_DEBUG_TOOLBAR = list(settings.INSTALLED_APPS)
@@ -25,7 +25,7 @@ if 'debug_toolbar' in INSTALLED_APPS_NO_DEBUG_TOOLBAR:
 
 
 @django.test.utils.override_settings(
-    MIDDLEWARE_CLASSES=MIDDLEWARE_CLASSES_NO_DEBUG_TOOLBAR,
+    MIDDLEWARE=MIDDLEWARE_CLASSES_NO_DEBUG_TOOLBAR,
     INSTALLED_APPS=INSTALLED_APPS_NO_DEBUG_TOOLBAR,
     AUTH_USER_MODEL='accounts.UnitTestUser',
     ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accounts.UnitTestAuditLogEvent',
@@ -276,7 +276,7 @@ class MasqueradeStartTestCase(django.test.TestCase):
 
 
 @django.test.utils.override_settings(
-    MIDDLEWARE_CLASSES=MIDDLEWARE_CLASSES_NO_DEBUG_TOOLBAR,
+    MIDDLEWARE=MIDDLEWARE_CLASSES_NO_DEBUG_TOOLBAR,
     INSTALLED_APPS=INSTALLED_APPS_NO_DEBUG_TOOLBAR,
     AUTH_USER_MODEL='accounts.UnitTestUser',
     ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accounts.UnitTestAuditLogEvent',
