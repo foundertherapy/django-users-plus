@@ -6,4 +6,4 @@ pyflakes
 django-timezone-field>=2.0rc1
 django-localflavor
 bcrypt
-mock==0.4.25
+mock
