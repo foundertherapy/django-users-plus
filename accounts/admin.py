@@ -118,7 +118,7 @@ class BaseUserAdmin(django.contrib.auth.admin.UserAdmin):
     def get_urls(self):
         from django.conf.urls import url
         return [
-            url(r'^(\d+)/password/$',
+            url(r'^(\d+)/change/password/$',
              self.admin_site.admin_view(self.user_change_password))
         ] + super(BaseUserAdmin, self).get_urls()
 
@@ -218,7 +218,7 @@ class BaseUserAdmin(django.contrib.auth.admin.UserAdmin):
             'form_url': form_url,
             'form': form,
             'is_popup':
-            django.contrib.admin.options.IS_POPUP_VAR in request.REQUEST,
+            django.contrib.admin.options.IS_POPUP_VAR in request,
             'add': True,
             'change': False,
             'has_delete_permission': False,
