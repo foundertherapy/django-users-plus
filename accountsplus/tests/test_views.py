@@ -27,11 +27,11 @@ if 'debug_toolbar' in INSTALLED_APPS_NO_DEBUG_TOOLBAR:
 @django.test.utils.override_settings(
     MIDDLEWARE=MIDDLEWARE_CLASSES_NO_DEBUG_TOOLBAR,
     INSTALLED_APPS=INSTALLED_APPS_NO_DEBUG_TOOLBAR,
-    AUTH_USER_MODEL='accounts.UnitTestUser',
-    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accounts.UnitTestAuditLogEvent',
+    AUTH_USER_MODEL='accountsplus.UnitTestUser',
+    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accountsplus.UnitTestAuditLogEvent',
 )
 class MasqueradeStartTestCase(django.test.TestCase):
-    urls = 'accounts.tests.test_urls'
+    urls = 'accountsplus.tests.test_urls'
 
     @classmethod
     def setUpTestData(cls):
@@ -278,11 +278,11 @@ class MasqueradeStartTestCase(django.test.TestCase):
 @django.test.utils.override_settings(
     MIDDLEWARE=MIDDLEWARE_CLASSES_NO_DEBUG_TOOLBAR,
     INSTALLED_APPS=INSTALLED_APPS_NO_DEBUG_TOOLBAR,
-    AUTH_USER_MODEL='accounts.UnitTestUser',
-    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accounts.UnitTestAuditLogEvent',
+    AUTH_USER_MODEL='accountsplus.UnitTestUser',
+    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accountsplus.UnitTestAuditLogEvent',
 )
 class PasswordResetActionTestCase(django.test.TestCase):
-    urls = 'accounts.tests.test_urls'
+    urls = 'accountsplus.tests.test_urls'
 
     @classmethod
     def setUpTestData(cls):
@@ -321,8 +321,8 @@ class PasswordResetActionTestCase(django.test.TestCase):
     def test_password_reset_action_admin_user(self):
         c = django.test.client.Client()
         self.assertTrue(c.login(email='superuser@example.com', password='password'))
-        r = c.post('/admin/accounts/unittestuser/', data={'action': 'reset_passwords', '_selected_action': ['3', '2', ], })
-        self.assertRedirects(r, '/admin/accounts/unittestuser/')
+        r = c.post('/admin/accountsplus/unittestuser/', data={'action': 'reset_passwords', '_selected_action': ['3', '2', ], })
+        self.assertRedirects(r, '/admin/accountsplus/unittestuser/')
 
         # check that we have 2 emails queued up
         self.assertEqual(2, len(django.core.mail.outbox))
@@ -334,7 +334,7 @@ class PasswordResetActionTestCase(django.test.TestCase):
         self.assertTrue(c.login(email='staffuser@example.com', password='password'))
 
         # test that a staff user without change permission can't reset a password
-        r = c.post('/admin/accounts/unittestuser/', data={'action': 'reset_passwords', '_selected_action': ['3', '2', ], })
+        r = c.post('/admin/accountsplus/unittestuser/', data={'action': 'reset_passwords', '_selected_action': ['3', '2', ], })
         self.assertEqual(r.status_code, 403)
 
     def test_password_reset_action_staff_user_with_permission(self):
@@ -345,8 +345,8 @@ class PasswordResetActionTestCase(django.test.TestCase):
 
         # test that a staff user with change permission can reset a password
         self.assertTrue(c.login(email='staffuser@example.com', password='password'))
-        r = c.post('/admin/accounts/unittestuser/', data={'action': 'reset_passwords', '_selected_action': ['3', '2', ], })
-        self.assertRedirects(r, '/admin/accounts/unittestuser/')
+        r = c.post('/admin/accountsplus/unittestuser/', data={'action': 'reset_passwords', '_selected_action': ['3', '2', ], })
+        self.assertRedirects(r, '/admin/accountsplus/unittestuser/')
 
         # check that we have 2 emails queued up
         self.assertEqual(2, len(django.core.mail.outbox))
@@ -357,5 +357,5 @@ class PasswordResetActionTestCase(django.test.TestCase):
     def test_password_reset_action_regular_user(self):
         c = django.test.client.Client()
         self.assertTrue(c.login(email='regularuser@example.com', password='password'))
-        r = c.post('/admin/accounts/unittestuser/', data={'action': 'reset_passwords', '_selected_action': ['3', '2', ], })
-        self.assertRedirects(r, '/admin/login/?next=/admin/accounts/unittestuser/')
+        r = c.post('/admin/accountsplus/unittestuser/', data={'action': 'reset_passwords', '_selected_action': ['3', '2', ], })
+        self.assertRedirects(r, '/admin/login/?next=/admin/accountsplus/unittestuser/')

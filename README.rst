@@ -2,10 +2,10 @@
     :target: https://circleci.com/gh/foundertherapy/django-users-plus
 
 ========
-Accounts
+AccountsPlus
 ========
 
-Accounts is an app that adds the following features to your Django project::
+accountsplus is an app that adds the following features to your Django project::
 
 1. An swappable User model that uses email as the username for sign in, and has a timezone field (and supporting middleware) that will show localized times in the Admin site.
 
@@ -28,11 +28,11 @@ Accounts is an app that adds the following features to your Django project::
 
 Quick start
 -----------
-1. Add "accounts" to your INSTALLED_APPS setting like this::
+1. Add "accountsplus" to your INSTALLED_APPS setting like this::
 
     INSTALLED_APPS = [
         ...
-        'accounts',
+        'accountsplus',
         'django.contrib.sites',
     ]
 
@@ -59,13 +59,13 @@ Quick start
     ACCOUNTS_ENABLE_AUDIT_LOG = True
     ACCOUNTS_AUDIT_LOG_EVENT_MODEL = '<app name>.<your AuditLogEvent-inherited model>'
 
-5. Include the accounts URLconf in your project urls.py like this::
+5. Include the accountsplus URLconf in your project urls.py like this::
 
-    url(r'^', include('accounts.urls')),
+    url(r'^', include('accountsplus.urls')),
 
 6. To enable timezone support for users in the Admin site, add the following to MIDDLEWARE::
 
     MIDDLEWARE = (
         ...
-        'accounts.middleware.TimezoneMiddleware',
+        'accountsplus.middleware.TimezoneMiddleware',
     )

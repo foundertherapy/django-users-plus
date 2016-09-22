@@ -14,13 +14,13 @@ logging.disable(logging.CRITICAL)
 
 urlpatterns = [
     '',
-    django.conf.urls.url(r'^', django.conf.urls.include('accounts.urls')),
+    django.conf.urls.url(r'^', django.conf.urls.include('accountsplus.urls')),
     django.conf.urls.url(r'^admin/', django.conf.urls.include(django.contrib.admin.site.urls)),
 ]
 
 
 class UrlsTestCase(django.test.SimpleTestCase):
-    urls = 'accounts.tests.test_urls'
+    urls = 'accountsplus.tests.test_urls'
 
     def test_login_urls(self):
         self.assertEqual(django.shortcuts.resolve_url('login'), '/login/')

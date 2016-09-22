@@ -20,7 +20,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.sessions',
     'localflavor',
-    'accounts',
+    'accountsplus',
 )
 
 DATABASES = {
@@ -44,7 +44,7 @@ MIDDLEWARE = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'accounts.middleware.TimezoneMiddleware',
+    'accountsplus.middleware.TimezoneMiddleware',
 )
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
@@ -60,7 +60,7 @@ TEMPLATES = [
         'OPTIONS': {
             'context_processors': [
                 'django.contrib.auth.context_processors.auth',
-                'accounts.context_processors.masquerade_info',
+                'accountsplus.context_processors.masquerade_info',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.media',
                 'django.template.context_processors.static',

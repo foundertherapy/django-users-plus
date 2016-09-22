@@ -6,8 +6,8 @@ import django.test.utils
 import logging
 import mock
 
-import accounts.models
-import accounts.signals
+import accountsplus.models
+import accountsplus.signals
 
 from .. import signals, models
 from test_models import (UnitTestCompany, UnitTestUser, UnitTestAuditLogEvent)
@@ -16,8 +16,8 @@ logging.disable(logging.CRITICAL)
 
 
 @django.test.utils.override_settings(
-    AUTH_USER_MODEL='accounts.UnitTestUser',
-    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accounts.UnitTestAuditLogEvent',
+    AUTH_USER_MODEL='accountsplus.UnitTestUser',
+    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accountsplus.UnitTestAuditLogEvent',
 )
 class SignalTestCase(django.test.TestCase):
     @classmethod
@@ -83,8 +83,8 @@ class SignalTestCase(django.test.TestCase):
 
 
 @django.test.utils.override_settings(
-    AUTH_USER_MODEL='accounts.UnitTestUser',
-    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accounts.UnitTestAuditLogEvent',
+    AUTH_USER_MODEL='accountsplus.UnitTestUser',
+    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accountsplus.UnitTestAuditLogEvent',
 )
 class AuditLogEventHelperCase(SignalTestCase):
     @django.test.utils.override_settings(ACCOUNTS_ENABLE_AUDIT_LOG=True)
@@ -129,8 +129,8 @@ class AuditLogEventHelperCase(SignalTestCase):
 
 
 @django.test.utils.override_settings(
-    AUTH_USER_MODEL='accounts.UnitTestUser',
-    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accounts.UnitTestAuditLogEvent',
+    AUTH_USER_MODEL='accountsplus.UnitTestUser',
+    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accountsplus.UnitTestAuditLogEvent',
 )
 class LoginCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ACCOUNTS_ENABLE_AUDIT_LOG=True)
@@ -172,8 +172,8 @@ class LoginCallbackTestCase(SignalTestCase):
 
 
 @django.test.utils.override_settings(
-    AUTH_USER_MODEL='accounts.UnitTestUser',
-    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accounts.UnitTestAuditLogEvent',
+    AUTH_USER_MODEL='accountsplus.UnitTestUser',
+    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accountsplus.UnitTestAuditLogEvent',
 )
 class LogoutCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ACCOUNTS_ENABLE_AUDIT_LOG=True)
@@ -215,8 +215,8 @@ class LogoutCallbackTestCase(SignalTestCase):
 
 
 @django.test.utils.override_settings(
-    AUTH_USER_MODEL='accounts.UnitTestUser',
-    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accounts.UnitTestAuditLogEvent',
+    AUTH_USER_MODEL='accountsplus.UnitTestUser',
+    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accountsplus.UnitTestAuditLogEvent',
 )
 class MasqueradeStartCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ACCOUNTS_ENABLE_AUDIT_LOG=True)
@@ -236,13 +236,13 @@ class MasqueradeStartCallbackTestCase(SignalTestCase):
         self.assertEqual(0, UnitTestAuditLogEvent.objects.count())
 
     def test_signal_registration(self):
-        receivers = accounts.signals.masquerade_start._live_receivers(self)
+        receivers = accountsplus.signals.masquerade_start._live_receivers(self)
         self.assertIn(signals.masquerade_start_callback, receivers)
 
 
 @django.test.utils.override_settings(
-    AUTH_USER_MODEL='accounts.UnitTestUser',
-    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accounts.UnitTestAuditLogEvent',
+    AUTH_USER_MODEL='accountsplus.UnitTestUser',
+    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accountsplus.UnitTestAuditLogEvent',
 )
 class MasqueradeEndCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ACCOUNTS_ENABLE_AUDIT_LOG=True)
@@ -262,13 +262,13 @@ class MasqueradeEndCallbackTestCase(SignalTestCase):
         self.assertEqual(0, UnitTestAuditLogEvent.objects.count())
 
     def test_signal_registration(self):
-        receivers = accounts.signals.masquerade_end._live_receivers(self)
+        receivers = accountsplus.signals.masquerade_end._live_receivers(self)
         self.assertIn(signals.masquerade_end_callback, receivers)
 
 
 @django.test.utils.override_settings(
-    AUTH_USER_MODEL='accounts.UnitTestUser',
-    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accounts.UnitTestAuditLogEvent',
+    AUTH_USER_MODEL='accountsplus.UnitTestUser',
+    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accountsplus.UnitTestAuditLogEvent',
 )
 class PasswordResetCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ACCOUNTS_ENABLE_AUDIT_LOG=True)
@@ -304,13 +304,13 @@ class PasswordResetCallbackTestCase(SignalTestCase):
         self.assertEqual(0, UnitTestAuditLogEvent.objects.count())
 
     def test_signal_registration(self):
-        receivers = accounts.signals.user_password_reset_request._live_receivers(self)
+        receivers = accountsplus.signals.user_password_reset_request._live_receivers(self)
         self.assertIn(signals.password_reset_request_callback, receivers)
 
 
 @django.test.utils.override_settings(
-    AUTH_USER_MODEL='accounts.UnitTestUser',
-    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accounts.UnitTestAuditLogEvent',
+    AUTH_USER_MODEL='accountsplus.UnitTestUser',
+    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accountsplus.UnitTestAuditLogEvent',
 )
 class PasswordChangeCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ACCOUNTS_ENABLE_AUDIT_LOG=True)
@@ -346,13 +346,13 @@ class PasswordChangeCallbackTestCase(SignalTestCase):
         self.assertEqual(0, UnitTestAuditLogEvent.objects.count())
 
     def test_signal_registration(self):
-        receivers = accounts.signals.user_password_change._live_receivers(self)
+        receivers = accountsplus.signals.user_password_change._live_receivers(self)
         self.assertIn(signals.password_change_callback, receivers)
 
 
 @django.test.utils.override_settings(
-    AUTH_USER_MODEL='accounts.UnitTestUser',
-    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accounts.UnitTestAuditLogEvent',
+    AUTH_USER_MODEL='accountsplus.UnitTestUser',
+    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accountsplus.UnitTestAuditLogEvent',
 )
 class CreateCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ACCOUNTS_ENABLE_AUDIT_LOG=True)
@@ -388,13 +388,13 @@ class CreateCallbackTestCase(SignalTestCase):
         self.assertEqual(0, UnitTestAuditLogEvent.objects.count())
 
     def test_signal_registration(self):
-        receivers = accounts.signals.user_create._live_receivers(self)
+        receivers = accountsplus.signals.user_create._live_receivers(self)
         self.assertIn(signals.create_callback, receivers)
 
 
 @django.test.utils.override_settings(
-    AUTH_USER_MODEL='accounts.UnitTestUser',
-    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accounts.UnitTestAuditLogEvent',
+    AUTH_USER_MODEL='accountsplus.UnitTestUser',
+    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accountsplus.UnitTestAuditLogEvent',
 )
 class EmailChangeCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ACCOUNTS_ENABLE_AUDIT_LOG=True)
@@ -438,13 +438,13 @@ class EmailChangeCallbackTestCase(SignalTestCase):
         self.assertEqual(0, UnitTestAuditLogEvent.objects.count())
 
     def test_signal_registration(self):
-        receivers = accounts.signals.user_email_change._live_receivers(self)
+        receivers = accountsplus.signals.user_email_change._live_receivers(self)
         self.assertIn(signals.email_change_callback, receivers)
 
 
 @django.test.utils.override_settings(
-    AUTH_USER_MODEL='accounts.UnitTestUser',
-    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accounts.UnitTestAuditLogEvent',
+    AUTH_USER_MODEL='accountsplus.UnitTestUser',
+    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accountsplus.UnitTestAuditLogEvent',
 )
 class DeactivateCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ACCOUNTS_ENABLE_AUDIT_LOG=True)
@@ -480,13 +480,13 @@ class DeactivateCallbackTestCase(SignalTestCase):
         self.assertEqual(0, UnitTestAuditLogEvent.objects.count())
 
     def test_signal_registration(self):
-        receivers = accounts.signals.user_deactivate._live_receivers(self)
+        receivers = accountsplus.signals.user_deactivate._live_receivers(self)
         self.assertIn(signals.deactivate_callback, receivers)
 
 
 @django.test.utils.override_settings(
-    AUTH_USER_MODEL='accounts.UnitTestUser',
-    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accounts.UnitTestAuditLogEvent',
+    AUTH_USER_MODEL='accountsplus.UnitTestUser',
+    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accountsplus.UnitTestAuditLogEvent',
 )
 class ActivateCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ACCOUNTS_ENABLE_AUDIT_LOG=True)
@@ -522,13 +522,13 @@ class ActivateCallbackTestCase(SignalTestCase):
         self.assertEqual(0, UnitTestAuditLogEvent.objects.count())
 
     def test_signal_registration(self):
-        receivers = accounts.signals.user_activate._live_receivers(self)
+        receivers = accountsplus.signals.user_activate._live_receivers(self)
         self.assertIn(signals.activate_callback, receivers)
 
 
 @django.test.utils.override_settings(
-    AUTH_USER_MODEL='accounts.UnitTestUser',
-    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accounts.UnitTestAuditLogEvent',
+    AUTH_USER_MODEL='accountsplus.UnitTestUser',
+    ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accountsplus.UnitTestAuditLogEvent',
 )
 class CompanyNameChangeCallbackTestCase(SignalTestCase):
     @django.test.utils.override_settings(ACCOUNTS_ENABLE_AUDIT_LOG=True)
@@ -570,6 +570,6 @@ class CompanyNameChangeCallbackTestCase(SignalTestCase):
         self.assertEqual(0, UnitTestAuditLogEvent.objects.count())
 
     def test_signal_registration(self):
-        receivers = accounts.signals.company_name_change._live_receivers(self)
+        receivers = accountsplus.signals.company_name_change._live_receivers(self)
         self.assertIn(signals.company_name_change_callback, receivers)
 

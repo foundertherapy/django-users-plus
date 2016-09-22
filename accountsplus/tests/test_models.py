@@ -27,7 +27,7 @@ class UnitTestAuditLogEvent(models.BaseAuditLogEvent):
 
 
 @django.test.utils.override_settings(
-    AUTH_USER_MODEL='accounts.UnitTestUser',
+    AUTH_USER_MODEL='accountsplus.UnitTestUser',
 )
 class UserManagerTestCase(django.test.TestCase):
     @classmethod
@@ -62,7 +62,7 @@ class UserManagerTestCase(django.test.TestCase):
 
 
 @django.test.utils.override_settings(
-    AUTH_USER_MODEL='accounts.UnitTestUser',
+    AUTH_USER_MODEL='accountsplus.UnitTestUser',
 )
 class UserTestCase(django.test.TestCase):
     @classmethod

@@ -6,7 +6,7 @@ import os
 from setuptools import setup, find_packages
 
 
-with open('accounts/__init__.py', 'r') as init_file:
+with open('accountsplus/__init__.py', 'r') as init_file:
     version = re.search('^__version__ = [\'"]([^\'"]+)[\'"]', init_file.read(), re.MULTILINE).group(1)
 
 download_url = 'https://github.com/foundertherapy/django-users-plus/archive/{}.tar.gz'.format(version)

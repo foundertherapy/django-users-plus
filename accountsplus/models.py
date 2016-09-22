@@ -90,7 +90,7 @@ class BaseUser(django.contrib.auth.base_user.AbstractBaseUser, django.contrib.au
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ('first_name', 'last_name', )
 
-    PERMISSION_MASQUERADE = 'accounts.masquerade'
+    PERMISSION_MASQUERADE = 'accountsplus.masquerade'
 
     created_on = django.db.models.DateTimeField(auto_now_add=True)
     updated_on = django.db.models.DateTimeField(auto_now=True)
