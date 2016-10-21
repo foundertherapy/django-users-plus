@@ -52,7 +52,7 @@ Quick start
 
 3. Configure the swappable User model in settings::
 
-    AUTH_USER_MODE = '<app_name>.<your User-inherited model>'
+    AUTH_USER_MODEL = '<app_name>.<your User-inherited model>'
 
 4. Configure the swappable AuditLogEvent model for event logging. This is optional, but without it the AuditLogEvent signals will not work::
 
