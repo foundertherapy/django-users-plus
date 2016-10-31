@@ -6,7 +6,6 @@ import django.views.generic
 
 import views
 
-
 urlpatterns = [
     url(r'^logout/$', views.logout_then_login, name='logout'),
     url(r'^password_change/$', views.password_change, name='password_change'),
