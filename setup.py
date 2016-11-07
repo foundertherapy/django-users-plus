@@ -19,7 +19,7 @@ setup(
     version=version,
     packages=find_packages(),
     # license='MIT License',
-    # include_package_data=True,
+    include_package_data=True,
     description=(
         'A django app that provides extra features including masquerading, local timezone support on users, '
         'an audit log for tracking admin and view-based data changes and activities, and support for Company '
