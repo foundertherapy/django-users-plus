@@ -2,6 +2,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext as _
 import re
 
+
 class ComplexPasswordValidator(object):
 
     def validate(self, password, user=None):

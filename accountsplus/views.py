@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 import logging
+
 from django.utils.translation import ugettext as _
 import django.views.decorators.cache
 import django.views.decorators.csrf
@@ -13,10 +14,14 @@ import django.shortcuts
 import django.http
 import django.template.response
 import django.utils.module_loading
-
 import django.core.urlresolvers
 
+from axes import utils
+
 import signals
+import forms
+import settings
+
 
 logger = logging.getLogger(__name__)
 
@@ -153,7 +158,7 @@ def password_change(request,
 
 
 @django.views.decorators.csrf.csrf_protect
-def password_reset(request, is_admin_site=False,
+def password_reset(request,
                    template_name='registration/password_reset_form.html',
                    email_template_name='registration/password_reset_email.html',
                    subject_template_name='registration/password_reset_subject.txt',
@@ -167,7 +172,7 @@ def password_reset(request, is_admin_site=False,
     User = django.contrib.auth.get_user_model()
 
     response = django.contrib.auth.views.password_reset(
-        request, is_admin_site, template_name, email_template_name,
+        request, template_name, email_template_name,
         subject_template_name, password_reset_form, token_generator,
         post_reset_redirect, from_email, current_app, extra_context,
         html_email_template_name)
@@ -180,3 +185,24 @@ def password_reset(request, is_admin_site=False,
         except User.DoesNotExist:
             pass
     return response
+
+
+class GenericLockedView(django.views.generic.FormView):
+    template_name = settings.LOCKOUT_TEMPLATE
+    form_class = forms.CaptchaForm
+    urlPattern = ''
+
+    def get_success_url(self):
+        return django.urls.reverse_lazy(self.urlPattern)
+
+    def form_valid(self, form):
+        utils.reset(username=form.cleaned_data['username'])
+        return super(GenericLockedView, self).form_valid(form)
+
+
+class UserLockedOutView(GenericLockedView):
+    urlPattern = 'login'
+
+
+class AdminLockedOutView(GenericLockedView):
+    urlPattern = 'admin:index'
