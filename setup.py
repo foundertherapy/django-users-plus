@@ -18,7 +18,6 @@ setup(
     name='django-users-plus',
     version=version,
     packages=find_packages(),
-    data_files={'accountsplus.templates': ['*html']},
     # license='MIT License',
     include_package_data=True,
     description=(
