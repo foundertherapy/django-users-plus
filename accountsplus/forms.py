@@ -12,7 +12,7 @@ class CaptchaForm(django.forms.Form):
 
     def clean_username(self):
         username = self.cleaned_data.get("username")
-        exists = models.BaseUser.objects.filter(baseuser_email=username).exists()
+        exists = models.User.objects.filter(baseuser_email=username).exists()
         if not exists:
             raise django.forms.ValidationError("Username does not belong to a registered user")
         return username
