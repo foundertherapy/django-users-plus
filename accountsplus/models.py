@@ -145,10 +145,6 @@ class BaseUser(django.contrib.auth.base_user.AbstractBaseUser, django.contrib.au
         return pw
 
 
-class User(BaseUser):
-    pass
-
-
 @python_2_unicode_compatible
 class BaseAuditLogEvent(django.db.models.Model):
     created_on = django.db.models.DateTimeField(auto_now_add=True)
