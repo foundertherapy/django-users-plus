@@ -12,7 +12,7 @@ class CaptchaForm(django.forms.Form):
     username = django.forms.CharField()
 
     def clean_username(self):
-        username = self.cleaned_data.get("username")
+        username = self.cleaned_data.get('username')
         User = apps.get_model(getattr(settings, 'AUTH_USER_MODEL'))
         exists = User.objects.filter(email=username).exists()
         if not exists:
