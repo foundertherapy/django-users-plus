@@ -33,9 +33,9 @@ sensitive_post_parameters_m = django.utils.decorators.method_decorator(
 
 class CustomAdminSite(AdminSite):
 
-    def __init__(self):
+    def __init__(self, name='admin'):
         self.login_form = forms.EmailBasedAdminAuthenticationForm
-        super(CustomAdminSite, self).__init__()
+        super(CustomAdminSite, self).__init__(name)
 
 class UserCreationForm(django.forms.ModelForm):
     """
