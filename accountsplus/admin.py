@@ -20,14 +20,22 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib import messages
 from django.conf import settings
 from django.apps import apps
+from django.contrib.admin import AdminSite
 
 import signals
 import models
+import forms
 
 
 sensitive_post_parameters_m = django.utils.decorators.method_decorator(
     django.views.decorators.debug.sensitive_post_parameters())
 
+
+class CustomAdminSite(AdminSite):
+
+    def __init__(self):
+        self.login_form = forms.EmailBasedAdminAuthenticationForm
+        super(CustomAdminSite, self).__init__()
 
 class UserCreationForm(django.forms.ModelForm):
     """
