@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 import django.forms
 from django.conf import settings
 from django.apps import apps
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.admin.forms import AdminAuthenticationForm
 
 from captcha.fields import ReCaptchaField
 
@@ -17,3 +19,15 @@ class CaptchaForm(django.forms.Form):
         if not User.objects.filter(email=username).exists():
             raise django.forms.ValidationError("Username does not belong to a registered user")
         return username
+
+
+class EmailBasedAuthenticationForm(AuthenticationForm):
+
+    def clean_username(self):
+        return self.cleaned_data['username'].lower()
+
+
+class EmailBasedAdminAuthenticationForm(AdminAuthenticationForm):
+
+    def clean_username(self):
+        return self.cleaned_data['username'].lower()

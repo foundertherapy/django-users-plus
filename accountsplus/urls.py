@@ -2,9 +2,10 @@ from __future__ import unicode_literals
 
 import django.conf.urls
 from django.contrib.auth.urls import url
-import django.views.generic
+import django.contrib.auth.views
 
 import views
+import forms
 
 urlpatterns = [
     url(r'^logout/$', views.logout_then_login, name='logout'),
@@ -17,6 +18,10 @@ urlpatterns = [
     # reset flow
     url(r'^password_reset/$', views.password_reset, name='admin_password_reset'),
 
+    url(r'^login/$',
+        django.contrib.auth.views.login,
+        kwargs={'authentication_form': forms.EmailBasedAuthenticationForm, 'redirect_authenticated_user': True},
+        name='login'),
     url(r'^', django.conf.urls.include(django.contrib.auth.urls)),
 
     # masquerade views
