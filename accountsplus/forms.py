@@ -24,10 +24,10 @@ class CaptchaForm(django.forms.Form):
 class EmailBasedAuthenticationForm(AuthenticationForm):
 
     def clean_username(self):
-        return self.cleaned_data['username'].lower()
+        return self.data['username'].lower()
 
 
 class EmailBasedAdminAuthenticationForm(AdminAuthenticationForm):
 
     def clean_username(self):
-        return self.cleaned_data['username'].lower()
+        return self.data['username'].lower()
