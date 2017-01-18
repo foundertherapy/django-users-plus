@@ -31,12 +31,6 @@ sensitive_post_parameters_m = django.utils.decorators.method_decorator(
     django.views.decorators.debug.sensitive_post_parameters())
 
 
-class CustomAdminSite(AdminSite):
-
-    def __init__(self, name='admin'):
-        self.login_form = forms.EmailBasedAdminAuthenticationForm
-        super(CustomAdminSite, self).__init__(name)
-
 class UserCreationForm(django.forms.ModelForm):
     """
     A form that creates a user, with no privileges, from the given username and
