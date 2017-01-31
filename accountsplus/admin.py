@@ -231,8 +231,7 @@ class BaseUserAdmin(django.contrib.auth.admin.UserAdmin):
         }
         return django.template.response.TemplateResponse(
             request, self.change_user_password_template or
-            'admin/auth/user/change_password.html',
-            context, current_app=self.admin_site.name)
+            'admin/auth/user/change_password.html', context)
 
 
 class BaseCompanyAdmin(django.contrib.admin.ModelAdmin):
