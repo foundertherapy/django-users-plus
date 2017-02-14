@@ -332,7 +332,7 @@ class LogEntryAdmin(django.contrib.admin.ModelAdmin):
     list_display = ('action_time', 'user', 'content_type', 'object_link', 'action', 'change_message', )
 
     def get_readonly_fields(self, request, obj=None):
-        return django.contrib.admin.models.LogEntry._meta.get_all_field_names()
+        return [ f.name for f in django.contrib.admin.models.LogEntry._meta.get_fields() ]
 
     def has_add_permission(self, request):
         return False
