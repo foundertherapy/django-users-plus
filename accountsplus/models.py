@@ -62,8 +62,10 @@ class UserManager(django.contrib.auth.base_user.BaseUserManager):
         if not email:
             raise ValueError('The given username must be set')
         email = self.normalize_email(email)
+        send_welcome = extra_fields.pop('send_welcome', True)
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
+        user._send_welcome = send_welcome
         user.save(using=self._db)
         return user
 
