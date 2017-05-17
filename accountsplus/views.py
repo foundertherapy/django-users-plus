@@ -168,14 +168,15 @@ def password_reset(request,
                    from_email=None,
                    current_app=None,
                    extra_context=None,
-                   html_email_template_name=None):
+                   html_email_template_name=None,
+                   extra_email_context=None):
     User = django.contrib.auth.get_user_model()
 
     response = django.contrib.auth.views.password_reset(
         request, template_name, email_template_name,
         subject_template_name, password_reset_form, token_generator,
-        post_reset_redirect, from_email, current_app, extra_context,
-        html_email_template_name)
+        post_reset_redirect, from_email, extra_context,
+        html_email_template_name, extra_email_context)
     if request.method == 'POST':
         email = request.POST['email']
         try:
