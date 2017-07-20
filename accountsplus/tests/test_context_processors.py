@@ -13,6 +13,7 @@ logging.disable(logging.CRITICAL)
 @django.test.utils.override_settings(
     AUTH_USER_MODEL='accountsplus.UnitTestUser',
     ACCOUNTS_AUDIT_LOG_EVENT_MODEL='accountsplus.UnitTestAuditLogEvent',
+    LOGIN_REDIRECT_URL='/admin/',
 )
 class ContextProcessorTestCase(django.test.TestCase):
     @classmethod

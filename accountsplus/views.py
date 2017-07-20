@@ -15,6 +15,7 @@ import django.http
 import django.template.response
 import django.utils.module_loading
 import django.core.urlresolvers
+from django.conf import settings as app_settings
 
 from axes import utils
 
@@ -84,7 +85,7 @@ def masquerade(request, user_id=None):
         'User {} ({}) masquerading as {} ({})'.format(admin_user.email, admin_user.id, request.user.email, request.user.id))
     django.contrib.messages.success(request, 'Masquerading as user {0}'.format(user.email))
 
-    return django.shortcuts.redirect('admin:index')
+    return django.http.HttpResponseRedirect(app_settings.LOGIN_REDIRECT_URL)
 
 
 @django.views.decorators.cache.never_cache
