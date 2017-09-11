@@ -16,6 +16,8 @@ from django.utils.encoding import python_2_unicode_compatible
 import timezone_field
 import localflavor.us.models
 
+import settings
+
 logger = logging.getLogger(__name__)
 
 
@@ -103,6 +105,8 @@ class BaseUser(django.contrib.auth.base_user.AbstractBaseUser, django.contrib.au
     last_name = django.db.models.CharField(_('Last Name'), max_length=50)
     email = django.db.models.EmailField(_('Email'), unique=True)
     timezone = timezone_field.TimeZoneField(default='America/New_York')
+    preferred_language = django.db.models.CharField(_('Preferred Language'), choices=settings.SUPPORTED_LANGUAGES,
+                                                    blank=True, null=True, max_length=10)
 
     objects = UserManager()
 

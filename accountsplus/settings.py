@@ -1,10 +1,25 @@
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.apps import apps
+from django.utils.translation import ugettext_lazy as _
 
 
 # Default values
 LOCKOUT_TEMPLATE = 'accounts/locked_out.html'
+
+ENGLISH_LANGUAGE = 'en-us'
+SPANISH_LANGUAGE = 'es'
+FRENCH_LANGUAGE = 'fr'
+PORTUGUESE_LANGUAGE = 'pt'
+ARABIC_LANGUAGE = 'ar'
+DEFAULT_SUPPORTED_LANGUAGES = (
+    (ENGLISH_LANGUAGE, _('English')),
+    (SPANISH_LANGUAGE, _('Spanish')),
+    (FRENCH_LANGUAGE, _('French')),
+    (PORTUGUESE_LANGUAGE, _('Portuguese')),
+    (ARABIC_LANGUAGE, _('Arabic')),
+)
+
 
 def get_setting(setting_str, is_required, default_value=None):
     try:
@@ -60,3 +75,7 @@ if ENABLE_LOCKOUT:
     LOGIN_FAILURE_LIMIT = int(get_login_failure_limit())
     LOCKOUT_URL = str(get_lockout_url())
     LOCKOUT_TEMPLATE = get_lockout_template()
+
+
+SUPPORTED_LANGUAGES = get_setting('LANGUAGES', False, DEFAULT_SUPPORTED_LANGUAGES)
+DEFAULT_LANGUAGE = get_setting('LANGUAGE_CODE', False, ENGLISH_LANGUAGE)
