@@ -19,7 +19,7 @@ class ComplexPasswordValidator(object):
 class CustomPasswordValidator(object):
 
     def validate(self, password, user=None):
-        regex = '(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]'
+        regex = '(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d][^!<>?=+@{}_$%()\[\]\-\.`/\\\\]*'
         if not re.match(regex, password):
              raise ValidationError(_('Password should contain uppercase, lowercase, numeric values and could contain a '
                                      'special character'), code='password_is_weak')
