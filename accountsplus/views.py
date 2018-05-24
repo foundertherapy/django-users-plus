@@ -163,7 +163,7 @@ def password_reset(request,
                    template_name='registration/password_reset_form.html',
                    email_template_name='registration/password_reset_email.html',
                    subject_template_name='registration/password_reset_subject.txt',
-                   password_reset_form=django.contrib.auth.forms.PasswordResetForm,
+                   password_reset_form=forms.CustomPasswordResetForm,
                    token_generator=django.contrib.auth.views.default_token_generator,
                    post_reset_redirect=None,
                    from_email=None,
@@ -172,6 +172,15 @@ def password_reset(request,
                    html_email_template_name=None,
                    extra_email_context=None):
     User = django.contrib.auth.get_user_model()
+    # We set this always in the middleware to the preferred language of the user
+    if request.method == 'POST':
+        email = request.POST['email']
+        extra_email_context = extra_email_context or {}
+        try:
+            user = User.objects.get(email=email)
+            extra_email_context['email_lang'] = user.preferred_language or request.LANGUAGE_CODE
+        except User.DoesNotExist:
+            pass
 
     response = django.contrib.auth.views.password_reset(
         request, template_name, email_template_name,

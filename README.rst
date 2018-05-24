@@ -104,3 +104,8 @@ Quick start
     3. For more information on those libraries, check the following docs::
         1. [django-axes](https://django-axes.readthedocs.io/en/latest/)
         2. [django-recaptcha](https://github.com/praekelt/django-recaptcha)
+
+
+8. If you have i18n enabled within your application, you can set a preferred language for the user
+    1. If you define a default language `LANGUAGE_CODE` it will be used as default or `en`
+    2. Languages supported are those languages you define in your application in `LANGUAGES` setting
