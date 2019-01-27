@@ -34,7 +34,6 @@ Quick start
         ...
         'accountsplus',
         'django.contrib.sites',
-        'captcha',
         'timezone_field',
         'axes',
     ]
@@ -81,8 +80,6 @@ Quick start
 
         2. Required Fields::
 
-            RECAPTCHA_PUBLIC_KEY = <Key generated from Google Recaptcha API>
-            RECAPTCHA_PRIVATE_KEY = <Key generated from Google Recaptcha API>
             AXES_LOCK_OUT_AT_FAILURE = True
             AXES_COOLOFF_TIME = <Integer number of hours to block user>
 
@@ -102,8 +99,7 @@ Quick start
         AXES_LOCK_OUT_AT_FAILURE = False
 
     3. For more information on those libraries, check the following docs::
-        1. [django-axes](https://django-axes.readthedocs.io/en/latest/)
-        2. [django-recaptcha](https://github.com/praekelt/django-recaptcha)
+        [django-axes](https://django-axes.readthedocs.io/en/latest/)
 
 
 8. If you have i18n enabled within your application, you can set a preferred language for the user

@@ -31,14 +31,6 @@ def get_setting(setting_str, is_required, default_value=None):
             return default_value
 
 
-def get_captcha_public_key():
-    return get_setting('RECAPTCHA_PUBLIC_KEY', True)
-
-
-def get_captcha_private_key():
-    return get_setting('RECAPTCHA_PRIVATE_KEY', True)
-
-
 def get_enable_lockout():
     return get_setting('AXES_LOCK_OUT_AT_FAILURE', True)
 
@@ -64,12 +56,6 @@ if ENABLE_LOCKOUT:
     # Check if the required apps are installed
     if not apps.is_installed('axes'):
         raise ImproperlyConfigured('axes is not configured in your INSTALLED_APPS')
-    if not apps.is_installed('captcha'):
-        raise ImproperlyConfigured('captcha is not configured in your INSTALLED_APPS')
-
-    # Checking if those parameters are configured within the app settings
-    PRIVATE_KEY = get_captcha_private_key()
-    PUBLIC_KEY = get_captcha_private_key()
 
     COOLOFF_TIME = int(get_cooloff_time())
     LOGIN_FAILURE_LIMIT = int(get_login_failure_limit())

@@ -198,17 +198,12 @@ def password_reset(request,
     return response
 
 
-class GenericLockedView(django.views.generic.FormView):
+class GenericLockedView(django.views.generic.TemplateView):
     template_name = settings.LOCKOUT_TEMPLATE
-    form_class = forms.CaptchaForm
     urlPattern = ''
 
     def get_success_url(self):
         return django.urls.reverse_lazy(self.urlPattern)
-
-    def form_valid(self, form):
-        utils.reset(username=form.cleaned_data['username'])
-        return super(GenericLockedView, self).form_valid(form)
 
 
 class UserLockedOutView(GenericLockedView):

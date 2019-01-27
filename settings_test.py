@@ -22,7 +22,6 @@ INSTALLED_APPS = (
     'localflavor',
     'accountsplus',
     'axes',
-    'captcha',
 )
 
 DATABASES = {
@@ -76,9 +75,6 @@ TEMPLATES = [
 
 ACCOUNTS_ENABLE_AUDIT_LOG = False
 AXES_LOCK_OUT_AT_FAILURE = True
-
-RECAPTCHA_PUBLIC_KEY = 'publicKey'
-RECAPTCHA_PRIVATE_KEY = 'privateKey'
 
 AXES_COOLOFF_TIME = 1
 AXES_LOGIN_FAILURE_LIMIT = 1

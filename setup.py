@@ -34,7 +34,6 @@ setup(
         'django-timezone-field>=2.0rc1',
         'django-localflavor>=1.1',
         'swapper>=0.3.0',
-        'django-recaptcha',
     ],
     keywords=['users', 'django', 'masquerading', 'masquerade', 'impersonate', 'timezone', 'company', 'audit log'],
 )
