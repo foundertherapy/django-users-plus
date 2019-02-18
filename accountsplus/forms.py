@@ -26,6 +26,6 @@ class CustomPasswordResetForm(PasswordResetForm):
 
     def send_mail(self, subject_template_name, email_template_name,
                   context, from_email, to_email, html_email_template_name=None):
-        with context_managers.language(context['email_lang']):
+        with context_managers.language(context['user'].preferred_language):
             super(CustomPasswordResetForm, self).send_mail(subject_template_name, email_template_name, context,
                                                            from_email, to_email, html_email_template_name)
