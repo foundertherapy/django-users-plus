@@ -9,7 +9,7 @@ from accountsplus import forms
 urlpatterns = [
     django.conf.urls.url(r'^logout/$', views.logout_then_login, name='logout'),
     django.conf.urls.url(r'^password_change/$', views.password_change, name='password_change'),
-    django.conf.urls.url(r'^password_reset/$', views.password_reset, name='password_reset'),
+    django.conf.urls.url(r'^password_reset/$', django.contrib.auth.views.PasswordResetView.as_view(), name='password_reset'),
     django.conf.urls.url(r'^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
         django.contrib.auth.views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
 

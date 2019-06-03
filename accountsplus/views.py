@@ -26,7 +26,7 @@ from accountsplus import settings
 logger = logging.getLogger(__name__)
 
 
-def logout_then_login(request, login_url=None,  extra_context=None):
+def logout_then_login(request, login_url=None):
     """
     Logs out the user if they are logged in. Then redirects to the log-in page.
     """
@@ -34,7 +34,7 @@ def logout_then_login(request, login_url=None,  extra_context=None):
     if request.session.get('is_masquerading'):
         return django.shortcuts.redirect('end_masquerade')
     else:
-        return django.contrib.auth.views.logout_then_login(request, login_url, extra_context)
+        return django.contrib.auth.views.logout_then_login(request, login_url)
 
 
 @django.views.decorators.cache.never_cache
