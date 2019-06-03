@@ -183,7 +183,7 @@ class BaseUserAdmin(django.contrib.auth.admin.UserAdmin):
     reset_passwords.short_description = 'Send password reset emails to selected Users'
 
     def get_timezone(self, obj):
-        return unicode(obj.timezone)
+        return str(obj.timezone)
 
     def masquerade(self, obj):
         return '<a href="{}">sign in</a>'.format(django.urls.reverse('masquerade', kwargs={'user_id': obj.id}))
