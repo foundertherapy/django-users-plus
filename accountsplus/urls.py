@@ -24,6 +24,6 @@ urlpatterns = [
     django.conf.urls.url(r'^', django.conf.urls.include(django.contrib.auth.urls)),
 
     # masquerade views
-    django.conf.urls.url(r'^admin/masquerade/end/$', views.end_masquerade, name='end_masquerade'),
-    django.conf.urls.url(r'^admin/masquerade/(?P<user_id>\d+)/$', views.masquerade, name='masquerade'),
+    django.conf.urls.url(r'^admin/masquerade/end/$', views.EndMasqueradeUserView.as_view(), name='end_masquerade'),
+    django.conf.urls.url(r'^admin/masquerade/(?P<user_id>\d+)/$', views.MasqueradeUserView.as_view(), name='masquerade'),
 ]

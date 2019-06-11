@@ -4,6 +4,7 @@ from django.utils.translation import ugettext as _
 import django.views.decorators.cache
 import django.views.decorators.csrf
 import django.views.decorators.debug
+import django.views.generic
 import django.contrib.auth.decorators
 import django.contrib.auth.views
 import django.contrib.auth.forms
@@ -15,15 +16,19 @@ import django.template.response
 import django.utils.module_loading
 import django.urls
 from django.conf import settings as app_settings
+from django.apps import apps
 
 from axes import utils
 
 from accountsplus import signals
 from accountsplus import forms
-from accountsplus import settings
+from accountsplus import settings as accounts_settings
 
 
 logger = logging.getLogger(__name__)
+
+SESSION_IS_MASQUERADING = 'is_masquerading'
+SESSION_MASQUERADE_USER_ID = 'masquerade_user_id'
 
 
 def logout_then_login(request, login_url=None):
@@ -37,86 +42,40 @@ def logout_then_login(request, login_url=None):
         return django.contrib.auth.views.logout_then_login(request, login_url)
 
 
-@django.views.decorators.cache.never_cache
-@django.contrib.auth.decorators.login_required
-def masquerade(request, user_id=None):
-    User = django.contrib.auth.get_user_model()
+class MasqueradeUserView(django.views.generic.RedirectView):
 
-    return_page = request.META.get('HTTP_REFERER') or 'admin:index'
-    if not user_id:
-        django.contrib.messages.error(request, 'Masquerade failed: no user specified')
-        return django.shortcuts.redirect(return_page)
-    if not request.user.has_perm(User.PERMISSION_MASQUERADE):
-        django.contrib.messages.error(request, 'Masquerade failed: insufficient privileges')
-        return django.shortcuts.redirect(return_page)
-    if not (request.user.is_superuser or request.user.is_staff):
-        django.contrib.messages.error(request, 'Masquerade failed: must be staff or superuser')
-        return django.shortcuts.redirect(return_page)
+    def get(self, request, *args, **kwargs):
+        admin_user = request.user
 
-    try:
-        user = User.objects.get(pk=user_id)
-    except User.DoesNotExist:
-        logger.error('User {} ({}) masquerading failed for user {}'.format(request.user.email, request.user.id, user_id))
-        django.contrib.messages.error(request, 'Masquerade failed: unknown user {}'.format(user_id))
-        return django.shortcuts.redirect(return_page)
+        if not request.user.is_superuser:
+            django.contrib.messages.error(request, 'Masquerade failed: superuser only can masquerade')
+            return super(MasqueradeUserView, self).get(request, *args, **kwargs)
 
-    if user.is_superuser:
-        logger.warning(
-            'User {} ({}) cannot masquerade as superuser {} ({})'.format(request.user.email, request.user.id, user.email, user.id))
-        django.contrib.messages.warning(request, 'Cannot masquerade as a superuser')
-        return django.shortcuts.redirect(return_page)
+        User = apps.get_model(app_settings.AUTH_USER_MODEL)
+        user = User.objects.get(pk=kwargs['user_id'])
+        user.backend = request.session[django.contrib.auth.BACKEND_SESSION_KEY]
+        django.contrib.auth.login(request, user, backend='django.contrib.auth.backends.ModelBackend')
 
-    admin_user = request.user
-    user.backend = request.session[django.contrib.auth.BACKEND_SESSION_KEY]
-    # log the new user in
-    signals.masquerade_start.send(sender=masquerade, request=request, user=admin_user, masquerade_as=user)
-    # this is needed to track whether this login is for a masquerade
-    setattr(user, 'is_masquerading', True)
-    setattr(user, 'masquerading_user', admin_user)
-    django.contrib.auth.login(request, user)
+        request.session[SESSION_IS_MASQUERADING] = True
+        request.session[SESSION_MASQUERADE_USER_ID] = admin_user.id
+        return super(MasqueradeUserView, self).get(request, *args, **kwargs)
 
-    request.session['is_masquerading'] = True
-    request.session['masquerade_user_id'] = admin_user.id
-    request.session['return_page'] = return_page
-    request.session['masquerade_is_superuser'] = admin_user.is_superuser
-
-    logger.info(
-        'User {} ({}) masquerading as {} ({})'.format(admin_user.email, admin_user.id, request.user.email, request.user.id))
-    django.contrib.messages.success(request, 'Masquerading as user {0}'.format(user.email))
-
-    return django.http.HttpResponseRedirect(app_settings.LOGIN_REDIRECT_URL)
+    def get_redirect_url(self, *args, **kwargs):
+        return accounts_settings.LOGIN_REDIRECT_URL
 
 
-@django.views.decorators.cache.never_cache
-@django.contrib.auth.decorators.login_required
-def end_masquerade(request):
-    User = django.contrib.auth.get_user_model()
-    if 'is_masquerading' not in request.session:
-        return django.shortcuts.redirect('admin:index')
+class EndMasqueradeUserView(django.views.generic.RedirectView):
 
-    if 'masquerade_user_id' in request.session:
-        try:
-            masqueraded_user = request.user
-            user = User.objects.get(
-                pk=request.session['masquerade_user_id'])
-            user.backend = request.session[
-                django.contrib.auth.BACKEND_SESSION_KEY]
-            # this is needed to track whether this login is for a masquerade
-            django.contrib.auth.logout(request)
-            signals.masquerade_end.send(
-                sender=end_masquerade, request=request, user=user,
-                masquerade_as=masqueraded_user)
-            django.contrib.auth.login(request, user)
-            logging.info('End masquerade user: {} ({}) by: {} ({})'.format(
-                masqueraded_user.email, masqueraded_user.id,
-                user.email, user.id))
-            django.contrib.messages.success(request, 'Masquerade ended')
-        except User.DoesNotExist as e:
-            logging.critical(
-                'Masquerading user {} does not exist'.format(
-                    request.session['masquerade_user_id']))
+    def get_redirect_url(self, *args, **kwargs):
+        return django.urls.reverse_lazy('admin:index')
 
-    return django.shortcuts.redirect('admin:index')
+    def get(self, request, *args, **kwargs):
+        User = apps.get_model(app_settings.AUTH_USER_MODEL)
+        user = User.objects.get(pk=request.session[SESSION_MASQUERADE_USER_ID])
+        user.backend = request.session[django.contrib.auth.BACKEND_SESSION_KEY]
+        django.contrib.auth.logout(request)
+        django.contrib.auth.login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+        return super(EndMasqueradeUserView, self).get(request, *args, **kwargs)
 
 
 @django.views.decorators.debug.sensitive_post_parameters()
@@ -189,7 +148,7 @@ def password_reset(request,
 
 
 class GenericLockedView(django.views.generic.FormView):
-    template_name = settings.LOCKOUT_TEMPLATE
+    template_name = accounts_settings.LOCKOUT_TEMPLATE
     form_class = forms.CaptchaForm
     urlPattern = ''
 
