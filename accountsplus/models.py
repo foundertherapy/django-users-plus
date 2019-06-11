@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import logging
 
 from django.utils.translation import ugettext_lazy as _
@@ -176,4 +174,4 @@ class BaseAuditLogEvent(django.db.models.Model):
 
     @property
     def is_masquerading(self):
-        return self.masquerading_user_id > 0
+        return self.masquerading_user_id is not None and self.masquerading_user_id > 0
