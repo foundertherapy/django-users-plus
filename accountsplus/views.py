@@ -15,7 +15,7 @@ import django.http
 import django.template.response
 import django.utils.module_loading
 import django.urls
-from django.conf import settings as app_settings
+from django.conf import settings
 from django.apps import apps
 
 from axes import utils
@@ -51,7 +51,7 @@ class MasqueradeUserView(django.views.generic.RedirectView):
             django.contrib.messages.error(request, 'Masquerade failed: superuser only can masquerade')
             return super(MasqueradeUserView, self).get(request, *args, **kwargs)
 
-        User = apps.get_model(app_settings.AUTH_USER_MODEL)
+        User = apps.get_model(settings.AUTH_USER_MODEL)
         user = User.objects.get(pk=kwargs['user_id'])
         user.backend = request.session[django.contrib.auth.BACKEND_SESSION_KEY]
         django.contrib.auth.login(request, user, backend='django.contrib.auth.backends.ModelBackend')
@@ -61,7 +61,7 @@ class MasqueradeUserView(django.views.generic.RedirectView):
         return super(MasqueradeUserView, self).get(request, *args, **kwargs)
 
     def get_redirect_url(self, *args, **kwargs):
-        return accounts_settings.LOGIN_REDIRECT_URL
+        return settings.LOGIN_REDIRECT_URL
 
 
 class EndMasqueradeUserView(django.views.generic.RedirectView):
@@ -70,7 +70,7 @@ class EndMasqueradeUserView(django.views.generic.RedirectView):
         return django.urls.reverse_lazy('admin:index')
 
     def get(self, request, *args, **kwargs):
-        User = apps.get_model(app_settings.AUTH_USER_MODEL)
+        User = apps.get_model(settings.AUTH_USER_MODEL)
         user = User.objects.get(pk=request.session[SESSION_MASQUERADE_USER_ID])
         user.backend = request.session[django.contrib.auth.BACKEND_SESSION_KEY]
         django.contrib.auth.logout(request)
