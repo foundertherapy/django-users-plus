@@ -186,7 +186,8 @@ class BaseUserAdmin(django.contrib.auth.admin.UserAdmin):
         return str(obj.timezone)
 
     def masquerade(self, obj):
-        return '<a href="{}">sign in</a>'.format(django.urls.reverse('masquerade', kwargs={'user_id': obj.id}))
+        return django.utils.html.mark_safe(
+            '<a href="{}">sign in</a>'.format(django.urls.reverse('masquerade', kwargs={'user_id': obj.id})))
     masquerade.short_description = 'Sign in'
     masquerade.allow_tags = True
 
