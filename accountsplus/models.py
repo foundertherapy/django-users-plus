@@ -9,15 +9,14 @@ import django.db.models.signals
 import django.utils.timezone
 import django.core.validators
 import django.contrib.sites.models
-from django.utils.encoding import python_2_unicode_compatible
 
 import timezone_field
 import localflavor.us.models
 
+
 logger = logging.getLogger(__name__)
 
 
-@python_2_unicode_compatible
 class BaseCompany(django.db.models.Model):
     created_on = django.db.models.DateTimeField(auto_now_add=True)
     updated_on = django.db.models.DateTimeField(auto_now=True)
@@ -84,7 +83,6 @@ class UserManager(django.contrib.auth.base_user.BaseUserManager):
         return self._create_user(email, password, **extra_fields)
 
 
-@python_2_unicode_compatible
 class BaseUser(django.contrib.auth.base_user.AbstractBaseUser, django.contrib.auth.models.PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ('first_name', 'last_name', )
@@ -145,7 +143,6 @@ class BaseUser(django.contrib.auth.base_user.AbstractBaseUser, django.contrib.au
         return pw
 
 
-@python_2_unicode_compatible
 class BaseAuditLogEvent(django.db.models.Model):
     created_on = django.db.models.DateTimeField(auto_now_add=True)
     updated_on = django.db.models.DateTimeField(auto_now=True)
