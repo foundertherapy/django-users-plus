@@ -29,12 +29,5 @@ setup(
     download_url=download_url,
     author='Dana Spiegel',
     author_email='dana@foundertherapy.co',
-    install_requires=[
-        'Django>=1.9',
-        'django-timezone-field>=2.0rc1',
-        'django-localflavor>=1.1',
-        'swapper>=0.3.0',
-        'django-recaptcha',
-    ],
     keywords=['users', 'django', 'masquerading', 'masquerade', 'impersonate', 'timezone', 'company', 'audit log'],
 )
