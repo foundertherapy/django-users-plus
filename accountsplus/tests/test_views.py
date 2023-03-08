@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import django.test
 import django.test.utils
 import django.test.client
@@ -9,8 +7,7 @@ import django.core.mail
 
 import logging
 
-from test_models import (UnitTestCompany, UnitTestUser)
-import test_admin
+from .test_models import (UnitTestCompany, UnitTestUser)
 
 
 logging.disable(logging.CRITICAL)

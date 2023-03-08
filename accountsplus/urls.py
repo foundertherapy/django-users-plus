@@ -1,11 +1,9 @@
-from __future__ import unicode_literals
-
 import django.conf.urls
 from django.contrib.auth.urls import url
 import django.contrib.auth.views
 
-import views
-import forms
+from . import views
+from . import forms
 
 urlpatterns = [
     url(r'^logout/$', views.logout_then_login, name='logout'),

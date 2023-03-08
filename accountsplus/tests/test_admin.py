@@ -1,12 +1,9 @@
-from __future__ import unicode_literals
-
-import django.test
 import django.contrib.admin
 
 import logging
 
 from .. import admin
-from test_models import (UnitTestCompany, UnitTestUser, UnitTestAuditLogEvent, )
+from .test_models import (UnitTestCompany, UnitTestUser, UnitTestAuditLogEvent, )
 
 
 logging.disable(logging.CRITICAL)

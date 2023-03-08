@@ -4,7 +4,7 @@ import django.test
 import django.test.client
 import django.utils.timezone
 
-from test_models import (UnitTestCompany, UnitTestUser)
+from .test_models import (UnitTestCompany, UnitTestUser)
 
 
 logging.disable(logging.CRITICAL)

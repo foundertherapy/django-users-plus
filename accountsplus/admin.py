@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import django.core.exceptions
 import django.shortcuts
 import django.http
@@ -21,8 +19,8 @@ from django.contrib import messages
 from django.conf import settings
 from django.apps import apps
 
-import signals
-import models
+from . import signals
+from . import models
 
 
 sensitive_post_parameters_m = django.utils.decorators.method_decorator(
@@ -185,7 +183,7 @@ class BaseUserAdmin(django.contrib.auth.admin.UserAdmin):
     reset_passwords.short_description = 'Send password reset emails to selected Users'
 
     def get_timezone(self, obj):
-        return unicode(obj.timezone)
+        return str(obj.timezone)
 
     def masquerade(self, obj):
         return '<a href="{}">sign in</a>'.format(django.urls.reverse('masquerade', kwargs={'user_id': obj.id}))
@@ -314,7 +312,7 @@ class ActionFilter(django.contrib.admin.SimpleListFilter):
             return queryset
 
     def lookups(self, request, model_admin):
-        return LogEntryAdmin.ACTION_NAMES.items()
+        return list(LogEntryAdmin.ACTION_NAMES.items())
 
 
 @django.contrib.admin.register(django.contrib.admin.models.LogEntry)

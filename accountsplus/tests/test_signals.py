@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import django.test
 import django.test.utils
 
@@ -10,7 +8,7 @@ import accountsplus.models
 import accountsplus.signals
 
 from .. import signals, models
-from test_models import (UnitTestCompany, UnitTestUser, UnitTestAuditLogEvent)
+from .test_models import (UnitTestCompany, UnitTestUser, UnitTestAuditLogEvent)
 
 logging.disable(logging.CRITICAL)
 
