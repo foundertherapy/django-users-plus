@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 import logging
 
 from django.utils.translation import ugettext as _
@@ -19,9 +18,9 @@ from django.conf import settings as app_settings
 
 from axes import utils
 
-import signals
-import forms
-import settings
+from . import signals
+from . import forms
+from . import settings
 
 
 logger = logging.getLogger(__name__)

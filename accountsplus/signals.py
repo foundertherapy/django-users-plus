@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import django.contrib.auth.signals
 from django.dispatch import receiver, Signal
 from django.conf import settings

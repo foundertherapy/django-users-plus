@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 
 def masquerade_info(request):
     if request.user.is_authenticated():

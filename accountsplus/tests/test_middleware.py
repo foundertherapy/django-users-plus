@@ -7,7 +7,7 @@ import django.utils.timezone
 import pytz
 
 from .. import middleware
-from test_models import (UnitTestCompany, UnitTestUser, )
+from .test_models import (UnitTestCompany, UnitTestUser, )
 
 
 logging.disable(logging.CRITICAL)

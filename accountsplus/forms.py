@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import django.forms
 from django.conf import settings
 from django.apps import apps
