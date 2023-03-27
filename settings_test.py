@@ -22,6 +22,7 @@ INSTALLED_APPS = (
     'accountsplus',
     'axes',
     'captcha',
+    'django.contrib.messages',
 )
 
 DATABASES = {
@@ -43,7 +44,6 @@ MIDDLEWARE = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'accountsplus.middleware.TimezoneMiddleware',
 )
