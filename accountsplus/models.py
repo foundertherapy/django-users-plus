@@ -1,6 +1,6 @@
 import logging
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 import django.core.mail
 import django.contrib.auth.models
 import django.contrib.auth.base_user

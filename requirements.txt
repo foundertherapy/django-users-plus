@@ -1,10 +1,9 @@
 setuptools
-Django==3.0.1
+Django>=4.2,<5
 flake8
-pep8
 pyflakes
-django-timezone-field
-django-localflavor
+django-timezone-field>=5.0
+django-localflavor>=3.0
 bcrypt
 mock
 git+https://github.com/foundertherapy/django-axes.git@remove_dependency_on_ip

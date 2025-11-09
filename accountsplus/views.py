@@ -1,6 +1,6 @@
 import logging
 
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 import django.views.decorators.cache
 import django.views.decorators.csrf
 import django.views.decorators.debug
@@ -116,6 +116,18 @@ def password_change(request,
     return django.template.response.TemplateResponse(request, template_name, context)
 
 
+class SignalPasswordResetView(django.contrib.auth.views.PasswordResetView):
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        email = form.cleaned_data.get('email')
+        if email:
+            for user in form.get_users(email):
+                signals.user_password_reset_request.send(
+                    sender=self.__class__, request=self.request, user=user)
+        return response
+
+
 @django.views.decorators.csrf.csrf_protect
 def password_reset(request,
                    template_name='registration/password_reset_form.html',
@@ -129,22 +141,21 @@ def password_reset(request,
                    extra_context=None,
                    html_email_template_name=None,
                    extra_email_context=None):
-    User = django.contrib.auth.get_user_model()
-
-    response = django.contrib.auth.views.PasswordResetView(
-        request, template_name, email_template_name,
-        subject_template_name, password_reset_form, token_generator,
-        post_reset_redirect, from_email, extra_context,
-        html_email_template_name, extra_email_context)
-    if request.method == 'POST':
-        email = request.POST['email']
-        try:
-            user = User.objects.get(email=email)
-            signals.user_password_reset_request.send(
-                sender=password_reset, request=request, user=user)
-        except User.DoesNotExist:
-            pass
-    return response
+    view_kwargs = {
+        'template_name': template_name,
+        'email_template_name': email_template_name,
+        'subject_template_name': subject_template_name,
+        'form_class': password_reset_form,
+        'token_generator': token_generator,
+        'from_email': from_email,
+        'extra_context': extra_context,
+        'html_email_template_name': html_email_template_name,
+        'extra_email_context': extra_email_context,
+    }
+    if post_reset_redirect:
+        view_kwargs['success_url'] = django.shortcuts.resolve_url(post_reset_redirect)
+    reset_view = SignalPasswordResetView.as_view(**view_kwargs)
+    return reset_view(request)
 
 
 class GenericLockedView(django.views.generic.FormView):

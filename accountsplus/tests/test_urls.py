@@ -1,8 +1,8 @@
 import django.test
 import django.shortcuts
-import django.conf.urls
 import django.contrib.admin
 import django.urls
+from django.urls import include, path
 
 import logging
 
@@ -11,9 +11,8 @@ logging.disable(logging.CRITICAL)
 
 
 urlpatterns = [
-    '',
-    django.conf.urls.url(r'^', django.conf.urls.include('accountsplus.urls')),
-    django.conf.urls.url(r'^admin/', django.conf.urls.include(django.contrib.admin.site.urls)),
+    path('', include('accountsplus.urls')),
+    path('admin/', include(django.contrib.admin.site.urls)),
 ]
 
 
