@@ -46,17 +46,17 @@ def log_audit_event(message, **kwargs):
         return e
 
 
-masquerade_start = Signal(providing_args=['request', 'user', 'masquerade_as'])
-masquerade_end = Signal(providing_args=['request', 'user'])
-user_password_reset_request = Signal(providing_args=['request', 'user'])
+masquerade_start = Signal()
+masquerade_end = Signal()
+user_password_reset_request = Signal()
 
-user_password_change = Signal(providing_args=['request', 'user'])
-user_email_change = Signal(providing_args=['request', 'user', 'old_email', 'new_email'])
-user_create = Signal(providing_args=['request', 'user'])
-user_deactivate = Signal(providing_args=['request', 'user'])
-user_activate = Signal(providing_args=['request', 'user'])
+user_password_change = Signal()
+user_email_change = Signal()
+user_create = Signal()
+user_deactivate = Signal()
+user_activate = Signal()
 
-company_name_change = Signal(providing_args=['request', 'company', 'old_name', 'new_name'])
+company_name_change = Signal()
 
 
 @receiver(django.contrib.auth.signals.user_logged_in)
